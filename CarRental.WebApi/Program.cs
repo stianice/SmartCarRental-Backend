@@ -7,6 +7,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(op => op.
+AddPolicy("def",
+p => p.AllowAnyHeader().
+       AllowAnyHeader().
+       AllowAnyMethod().
+       WithOrigins(new string[] {"http://localhost:5173"})
+
+
+));
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -15,7 +26,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("def");
 app.UseAuthorization();
 
 app.MapControllers();

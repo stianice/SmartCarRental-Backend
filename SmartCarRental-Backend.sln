@@ -11,13 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repository", "Repository", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{648C31B9-26F1-4DD1-8C3A-6BAC440A1590}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarRental.Common", "CarRental.Common\CarRental.Common.csproj", "{1636A01D-8255-4D14-A1A8-17EDCE3DCBD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarRental.Common", "CarRental.Common\CarRental.Common.csproj", "{1636A01D-8255-4D14-A1A8-17EDCE3DCBD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarRental.Respository", "CarRental.Respository\CarRental.Respository.csproj", "{9787F127-FEF8-4E57-9F7D-676BBEBBCC14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarRental.Respository", "CarRental.Respository\CarRental.Respository.csproj", "{9787F127-FEF8-4E57-9F7D-676BBEBBCC14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarRental.Services", "CarRental.Services\CarRental.Services.csproj", "{9DD509BC-CB54-48C6-A2A6-5B97CCB18CDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarRental.Services", "CarRental.Services\CarRental.Services.csproj", "{9DD509BC-CB54-48C6-A2A6-5B97CCB18CDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarRental.WebApi", "CarRental.WebApi\CarRental.WebApi.csproj", "{941769E4-967A-4C9C-B554-032B3EDAAC83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarRental.WebApi", "CarRental.WebApi\CarRental.WebApi.csproj", "{941769E4-967A-4C9C-B554-032B3EDAAC83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
