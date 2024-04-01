@@ -12,5 +12,9 @@
         public string? Content { get; set; }
 
         public string Staus { get; set; } = null!;
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime EndDate { get; set; }
     }
 }

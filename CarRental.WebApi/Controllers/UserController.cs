@@ -1,6 +1,11 @@
-﻿using CarRental.Respository.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.Diagnostics;
+using System.Security.Cryptography;
+
+using CarRental.Respository;
+using CarRental.Respository.Models;
+using MD5Hash;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.WebApi.Controllers
 {
@@ -8,63 +13,155 @@ namespace CarRental.WebApi.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        public CarRentalContext Db;
+
+        public UserController(CarRentalContext db)
+        {
+            Db = db;
+        }
 
         //        // GET all users
         [HttpGet]
-        public List<User> GetAllUsers()
+        public ActionResult GetAllUsers()
         {
-            
-            return null;
+
+            try
+            {  
+                return Ok(Db.Users.Include(x=>x.Bookings).ToArray());
+            }             
+            catch(ArgumentNullException ex)
+            {
+                return this.BadRequest();
+            }
+
+           
         }
 
         // GET a specific user by email
         [HttpGet("{user_email}")]
-        public string GetUserByEmail(string user_email)
+        public ActionResult GetUserByEmail(string user_email)
         {
-            return user_email;
+            try
+            {
+                var user = Db.Users.Include(x=>x.Bookings).First(x => x.Email == user_email);
+                var userlinks = new Dictionary<string, object>();
+
+
+                userlinks.Add("user", user);
+                var links=new Dictionary<string, object>();
+                var self=new Dictionary<string, string>();
+                var bookings=new Dictionary<string, string>();
+
+                self.Add("href", $"http://localhost:3000/api/v1/users/{user_email}");
+                bookings.Add("href", "http://localhost:5173/useraccount");
+
+                links.Add("self", self);
+                links.Add("bookings", bookings);
+
+                userlinks.Add("links", links);
+
+                var rs = new ObjectResult(userlinks);
+                rs.StatusCode = 200;
+
+
+                return rs;
+            }
+            catch (ArgumentNullException ex)
+            {
+                return this.NotFound(new { message= "不存在该用户"});
+            }
+
+
         }
 
 
 
         //// POST to register a new user
-       
-        [HttpPost]
-        public User RegisterUser([FromBody]User user) {
 
-            return user;
+        [HttpPost]
+        public ActionResult RegisterUser([FromBody]User user) {
+
+
+
+           var us= Db.Users.FirstOrDefault(x => x.Email == user.Email);
+            if (us != null)
+            {
+                return this.Conflict(new { message = "该邮箱已注册" });
+            }
+
+            user.Password = user.Password.GetMD5();
+
+            Db.Users.Add(user);
+
+            Db.SaveChanges();
+
+            var rs = new ObjectResult(new { mseaage = "用户创建成功", newUser = user });
+
+                rs.StatusCode = 201;
+            return rs ;
+        }
+
+        [HttpPatch("{user_email}")]
+        public ActionResult PatchUserByEmail(User user,string user_email)
+        {
+            User? us = Db.Users.FirstOrDefault(x=>x.Email==user_email);
+            if (us == null) return this.NotFound(new { message = "用户不存在" });
+
+            if (user.Password!=us.Password) {
+
+                user.Password = user.Password.GetMD5();
+            
+            }
+
+            us = user;
+
+            Db.SaveChanges();
+
+            return Ok(new { message = "用户信息更新成功",user = us });
+        
         }
 
         //// PUT to modify all fields within a user
         //router.put('/api/v1/users/:user_email', validateUser, UserController.modifyUserByEmail);
-        [HttpPut]
-        public User ModifyUserByEmail(User user)
-        {
-            return user;
-        }
+
+        //待实现
+        //[HttpPut] 
+        //public User ModifyUserByEmail(User user)
+        //{
+        //    return user;
+        //}
 
 
-        //// PATCH to partially modify an existing user by email
-        //router.patch('/api/v1/users/:user_email', UserController.patchUserByEmail);
-        [HttpPatch("{user_email}")] 
-        public User patchUserByEmail(string user_email, User user) {
-
-            return user;
-        
-        }
+      
         //// DELETE all users
         //router.delete('/api/v1/users', UserController.deleteAllUsers);
 
         [HttpDelete]
-        public string DeleteAllUser() {
-            return "delete";
+        public ActionResult DeleteAllUser() {
+            Db.Users.ExecuteDelete();
+            Db.SaveChanges();
+
+
+            return Ok(new {message="成功删除所有用户"});
         }
 
         // DELETE to remove user by email
         //router.delete('/api/v1/users/:user_email', UserController.deleteUserByEmail);
         [HttpDelete("{user_email}")]
-        public string DeleteUserByEamil(string user_email)
+        public ActionResult DeleteUserByEamil(string user_email)
         {
-            return user_email;
+          var row=  Db.Users.Where(x=>x.Email==user_email).ExecuteDelete();
+
+            if (row < 1)
+            {
+                return this.NotFound(new {message="用户不存在"});
+            }
+
+            Db.SaveChanges();
+
+
+            return Ok(new { message = "成功删除该用户" });
+         
         }
         //// Authenticate the user login
         //router.post('/api/v1/users/login', UserController.authenticateUser);
@@ -72,6 +169,9 @@ namespace CarRental.WebApi.Controllers
         [HttpPost("login")]
         public User AuthenticateUser(User user)
         {
+
+            User? us = Db.Users.FirstOrDefault(x=>x.Email==user.Email);
+
             return user;
         }
     }
