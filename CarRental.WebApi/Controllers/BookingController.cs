@@ -5,6 +5,7 @@ namespace CarRental.WebApi.Controllers
 {
     [Route("api/v1")]
     [ApiController]
+
     public class BookingController : ControllerBase
     {
         // GET all bookings
@@ -34,7 +35,7 @@ namespace CarRental.WebApi.Controllers
         }
         // POST to create a new booking for a specific user
         [HttpPost("users/{user_email}/bookings")]
-        public void CreateBookingForUser(string user_email )
+        public void CreateBookingForUser(string user_email)
         {
 
         }
@@ -51,11 +52,11 @@ namespace CarRental.WebApi.Controllers
         // DELETE to remove booking by user and bookingReference
 
         [HttpDelete("users/{user_email}/bookings/{booking_reference}")]
-        public void removeBookingByUserAndRef(string user_email,string booking_reference)
+        public void removeBookingByUserAndRef(string user_email, string booking_reference)
         {
 
         }
-        
+
 
     }
 }

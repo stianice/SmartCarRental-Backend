@@ -21,17 +21,17 @@ namespace CarRental.Respository.Models
                     HasColumnName("lname");
 
             builder.Property(x => x.Password).
-                    HasMaxLength(18).
+                    HasMaxLength(150).
                     HasColumnName("password");
 
             builder.Property(x => x.Email).
                     HasMaxLength(18).
                     HasColumnName("email");
-            
-            builder.Property(x => x.Phone).
+
+            builder.Property(x => x.PhoneNumber).
                     HasMaxLength(13).
-                    HasColumnName("phone"); 
-            
+                    HasColumnName("phonenumber");
+
             builder.Property(x => x.Blance).
                     HasColumnName("blance");
 

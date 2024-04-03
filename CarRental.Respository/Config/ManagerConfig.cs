@@ -22,15 +22,15 @@ namespace CarRental.Respository.Models
             builder.Property(x => x.Fname).
                     HasMaxLength(15).
                     HasColumnName("fname");
-            
+
             builder.Property(x => x.Lname).
                     HasMaxLength(15).
                     HasColumnName("lname");
-            
+
             builder.Property(x => x.Password).
-                    HasMaxLength(18).
-                    HasColumnName("password"); 
-            
+                    HasMaxLength(150).
+                    HasColumnName("password");
+
             builder.Property(x => x.Email).
                     HasMaxLength(18).
                     HasColumnName("email");

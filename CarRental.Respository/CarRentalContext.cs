@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CarRental.Respository.Models;
+﻿using CarRental.Respository.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.Respository
 {
-    public class CarRentalContext:DbContext
+    public class CarRentalContext : DbContext
     {
-        
+
 
         public DbSet<Manager> Managers { get; set; } = null!;
 
@@ -20,7 +15,7 @@ namespace CarRental.Respository
 
         public DbSet<Booking> Bookings { get; set; } = null!;
 
-        public CarRentalContext(DbContextOptions<CarRentalContext> options):base(options)
+        public CarRentalContext(DbContextOptions<CarRentalContext> options) : base(options)
         {
         }
 

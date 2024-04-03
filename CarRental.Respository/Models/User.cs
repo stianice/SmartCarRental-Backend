@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CarRental.Respository.Models
+﻿namespace CarRental.Respository.Models
 {
     public class User
     {
@@ -13,7 +7,7 @@ namespace CarRental.Respository.Models
 
         public string Fname { get; set; } = null!;
         public string Lname { get; set; } = null!;
-        public string Phone { get; set; }=null!;
+        public string PhoneNumber { get; set; } = null!;
         public string Password { get; set; } = null!;
         public float Blance { get; set; }
 

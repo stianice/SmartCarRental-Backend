@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CarRental.Respository.Models
@@ -26,11 +21,13 @@ namespace CarRental.Respository.Models
                     HasColumnName("image");
 
 
-            builder.Property(x=>x.Color).
+            builder.Property(x => x.Color).
                     HasMaxLength(10).
                     HasColumnName("color");
-
-            builder.Property(x=>x.Description).
+            builder.Property(x => x.Brand).
+                  HasMaxLength(10).
+                  HasColumnName("brand");
+            builder.Property(x => x.Description).
                     HasMaxLength(100).
                     HasColumnName("description");
 
@@ -39,7 +36,7 @@ namespace CarRental.Respository.Models
                     HasColumnName("registration");
 
             builder.HasMany(x => x.Bookings).WithOne(x => x.Car).IsRequired();
-      
+
         }
     }
 }

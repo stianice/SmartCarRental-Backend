@@ -1,34 +1,63 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Security.Claims;
+using CarRental.Common.Authrization;
+using CarRental.Respository;
+using CarRental.Respository.Models;
+using CarRental.Services.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.WebApi.Controllers
 {
     [Route("api/V1/managers")]
     [ApiController]
+    [Authorize(Roles = "manager")]
     public class ManagerController : ControllerBase
     {
+        private readonly CarRentalContext _dbContext;
+
+        public ManagerController(CarRentalContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
         //// GET all managers
         //router.get('/api/v1/managers', ManagerController.getAllManagers);
         [HttpGet]
-        public void GetAllManagers()
+        public ActionResult GetAllManagers()
         {
+            try
+            {
+                Manager[] manAgeArs = _dbContext.Managers.ToArray();
+
+                return Ok(manAgeArs);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex.Message);
+                ObjectResult rs = new ObjectResult(new { Error = "error" });
+                rs.StatusCode = 500;
+                return rs;
+            }
 
         }
         //// GET a specific manager by email
         //router.get('/api/v1/managers/:manager_email', ManagerController.getManagerByEmail);
         [HttpGet("{manager_email}")]
-        public void GetManagerByEmail()
+        public ActionResult GetManagerByEmail(string manager_email)
         {
+            Manager? manager = _dbContext.Managers.FirstOrDefault(x => x.Email == manager_email);
 
-        }
-        //// Authenticate the manager login
-        //router.post('/api/v1/managers/login', ManagerController.authenticateManager);
-        [HttpPost("login")]
-        public void AuthenticateManager()
-        {
+            if (manager is null)
+            {
+                return NotFound(new { message = "不存在该管理员账户" });
+            }
+            var managerLinks = new { manager, links = new { self = new { href = $"http://localhost:3000/api/v1/managers/{manager_email}/cars" } } };
 
+
+            return Ok(managerLinks);
         }
+
         //// POST to register a new manager
         //router.post('/api/v1/managers', validateManager, ManagerController.registerManager);
         [HttpPost]
@@ -39,32 +68,97 @@ namespace CarRental.WebApi.Controllers
         //// PUT to modify all fields within a manager
         //router.put('/api/v1/managers/:manager_email', validateManager, ManagerController.updateManagerByEmail)
         [HttpPut("{manager_email}")]
-        public void UpdateManagerByEmail()
+        public ActionResult UpdateManagerByEmail(string manager_email, [FromBody] Manager up_manager)
         {
+            Manager? manager = _dbContext.Managers.FirstOrDefault(x => x.Email == manager_email);
 
+            if (manager is null)
+            {
+                return new NotFoundObjectResult(new { message = "用户不存在" });
+
+            }
+
+            Manager? has_manager = _dbContext.Managers.FirstOrDefault(x => x.Email == up_manager.Email);
+            if (has_manager != null)
+            {
+                return new ObjectResult(new { meesage = "新邮箱已被使用" }) { StatusCode = 409 };
+            }
+
+            manager = up_manager;
+            manager.Password = BCrypt.Net.BCrypt.HashPassword(up_manager.Password);
+
+            _dbContext.SaveChanges();
+            return Ok(new { message = "管理员更新成功", manager });
         }
         //// PATCH to partially modify an existing user by email
         //router.patch('/api/v1/managers/:manager_email', ManagerController.patchManagerByEmail)
-        [HttpPatch("{manager_email}")]
-        public void PatchManagerByEmail()
-        {
 
+        [HttpPatch("{manager_email}")]
+        public ActionResult PatchManagerByEmail(string new_password,string manager_email)
+        {
+            Manager? manager = _dbContext.Managers.SingleOrDefault(x => x.Email == manager_email);
+            if(manager is null)
+            {
+                return NotFound(new { message = "管理员不存在" });
+                
+            }
+
+            manager.Password=BCrypt.Net.BCrypt.HashPassword(new_password);
+            _dbContext .SaveChanges();
+
+            return Ok(new { message = "管理员更新成功", manager });
         }
         //// DELETE all manager
         //router.delete('/api/v1/managers', ManagerController.deleteAllManager);
         [HttpDelete()]
-        public void DeleteAllManager()
+        public ActionResult DeleteAllManager()
         {
-
+            var row = _dbContext.Managers.ExecuteDelete();
+            if (row > 0)
+            {
+                return Ok(new { message = "成功删除所有管理员" });
+            }
+            return BadRequest("删除失败");
         }
         //// DELETE to remove manager by email
         //router.delete('/api/v1/managers/:manager_email', ManagerController.deleteManagerByEmail)
         [HttpDelete("{manager_email}")]
-        public void deleteManagerByEmail()
+        public ActionResult deleteManagerByEmail(string manager_email)
         {
-
+            var row = _dbContext.Managers.Where(x => x.Email == manager_email).ExecuteDelete();
+            if (row > 0)
+            {
+                return Ok(new { message = "成功管理员" });
+            }
+            return NotFound(new { message = "管理员不存在" });
         }
-        
+        //// Authenticate the manager login
+        //router.post('/api/v1/managers/login', ManagerController.authenticateManager);
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public ActionResult AuthenticateManager(LoginParams loginParams)
+        {
+            var man = _dbContext.Managers.Select(x => new { x.Password, x.Email }).FirstOrDefault(x => x.Email == loginParams.Email);
+
+            if (man is null) return this.NotFound(new { message = "用户不存在" });
+
+            var flag = BCrypt.Net.BCrypt.Verify(loginParams.Password, man.Password);
+
+            if (!flag)
+            {
+                var rs = new ObjectResult(new { message = "密码错误" });
+                rs.StatusCode = 401;
+                return rs;
+            }
+
+
+            Claim[] identity = [new Claim(ClaimTypes.Role, "manager"), new Claim("managerEmail", man.Email)];
+
+            string v = JwtHelper.CreateToken(identity);
+
+            return Ok(new { message = "认证成功", token = v });
+        }
+
 
     }
 }
