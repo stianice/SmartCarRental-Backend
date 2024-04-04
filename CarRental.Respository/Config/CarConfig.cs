@@ -7,36 +7,22 @@ namespace CarRental.Respository.Models
     {
         public void Configure(EntityTypeBuilder<Car> builder)
         {
+            builder
+                .ToTable("b_car", tb => tb.HasComment("车辆表"))
+                .HasKey(x => x.Id)
+                .HasName("PRIMARY");
 
-            builder.ToTable("b_car", tb => tb.HasComment("车辆表")).
-                    HasKey(x => x.Id).
-                    HasName("PRIMARY");
+            builder.Property(x => x.Price).HasColumnName("price");
 
+            builder.Property(x => x.Image).HasColumnType("blob").HasColumnName("image");
 
-            builder.Property(x => x.Price).
-                    HasColumnName("price");
+            builder.Property(x => x.Color).HasMaxLength(10).HasColumnName("color");
+            builder.Property(x => x.Brand).HasMaxLength(10).HasColumnName("brand");
+            builder.Property(x => x.Description).HasMaxLength(100).HasColumnName("description");
 
-            builder.Property(x => x.Image).
-                    HasColumnType("blob").
-                    HasColumnName("image");
-
-
-            builder.Property(x => x.Color).
-                    HasMaxLength(10).
-                    HasColumnName("color");
-            builder.Property(x => x.Brand).
-                  HasMaxLength(10).
-                  HasColumnName("brand");
-            builder.Property(x => x.Description).
-                    HasMaxLength(100).
-                    HasColumnName("description");
-
-            builder.Property(x => x.Registration).
-                    HasMaxLength(50).
-                    HasColumnName("registration");
+            builder.Property(x => x.Registration).HasMaxLength(50).HasColumnName("registration");
 
             builder.HasMany(x => x.Bookings).WithOne(x => x.Car).IsRequired();
-
         }
     }
 }

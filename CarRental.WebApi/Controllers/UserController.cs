@@ -1,5 +1,4 @@
-﻿
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using CarRental.Common.Authrization;
 using CarRental.Respository;
 using CarRental.Respository.Models;
@@ -27,7 +26,6 @@ namespace CarRental.WebApi.Controllers
         [Authorize(Roles = "manager")]
         public ActionResult GetAllUsers()
         {
-
             try
             {
                 return Ok(Db.Users.Include(x => x.Bookings).ToArray());
@@ -36,8 +34,6 @@ namespace CarRental.WebApi.Controllers
             {
                 return this.BadRequest();
             }
-
-
         }
 
         // GET a specific user by email
@@ -47,10 +43,7 @@ namespace CarRental.WebApi.Controllers
             try
             {
                 var user = Db.Users.Include(x => x.Bookings).First(x => x.Email == user_email);
-                var userlinks = new Dictionary<string, object>
-                {
-                    { "user", user }
-                };
+                var userlinks = new Dictionary<string, object> { { "user", user } };
                 var links = new Dictionary<string, object>();
                 var self = new Dictionary<string, string>();
                 var bookings = new Dictionary<string, string>();
@@ -66,27 +59,19 @@ namespace CarRental.WebApi.Controllers
                 var rs = new ObjectResult(userlinks);
                 rs.StatusCode = 200;
 
-
                 return rs;
             }
             catch (ArgumentNullException ex)
             {
                 return this.NotFound(new { message = "不存在该用户" });
             }
-
-
         }
-
-
 
         //// POST to register a new user
         [AllowAnonymous]
         [HttpPost]
         public ActionResult RegisterUser([FromBody] User user)
         {
-
-
-
             var us = Db.Users.FirstOrDefault(x => x.Email == user.Email);
             if (us != null)
             {
@@ -109,13 +94,12 @@ namespace CarRental.WebApi.Controllers
         public ActionResult PatchUserByEmail(User user, string user_email)
         {
             User? us = Db.Users.FirstOrDefault(x => x.Email == user_email);
-            if (us == null) return this.NotFound(new { message = "用户不存在" });
+            if (us == null)
+                return this.NotFound(new { message = "用户不存在" });
 
             if (user.Password != us.Password)
             {
-
                 user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-
             }
 
             us = user;
@@ -123,14 +107,13 @@ namespace CarRental.WebApi.Controllers
             Db.SaveChanges();
 
             return Ok(new { message = "用户信息更新成功", user = us });
-
         }
 
         //// PUT to modify all fields within a user
         //router.put('/api/v1/users/:user_email', validateUser, UserController.modifyUserByEmail);
 
         //待实现
-        //[HttpPut] 
+        //[HttpPut]
         //public User ModifyUserByEmail(User user)
         //{
         //    return user;
@@ -147,7 +130,6 @@ namespace CarRental.WebApi.Controllers
         {
             Db.Users.ExecuteDelete();
             Db.SaveChanges();
-
 
             return Ok(new { message = "成功删除所有用户" });
         }
@@ -166,19 +148,25 @@ namespace CarRental.WebApi.Controllers
 
             Db.SaveChanges();
 
-
             return Ok(new { message = "成功删除该用户" });
-
         }
+
         //// Authenticate the user login
         //router.post('/api/v1/users/login', UserController.authenticateUser);
         [AllowAnonymous]
         [HttpPost("login")]
         public ActionResult AuthenticateUser(LoginParams loginParams)
         {
-
-            var us = Db.Users.Select(x => new { x.Id, x.Email, x.Password }).FirstOrDefault(x => x.Email == loginParams.Email);
-            if (us is null) return this.NotFound(new { message = "用户不存在" });
+            var us = Db
+                .Users.Select(x => new
+                {
+                    x.Id,
+                    x.Email,
+                    x.Password
+                })
+                .FirstOrDefault(x => x.Email == loginParams.Email);
+            if (us is null)
+                return this.NotFound(new { message = "用户不存在" });
 
             var flag = BCrypt.Net.BCrypt.Verify(loginParams.Password, us.Password);
 
@@ -189,13 +177,16 @@ namespace CarRental.WebApi.Controllers
                 return rs;
             }
 
-
-            Claim[] identity = [new Claim(ClaimTypes.Role, "user"), new Claim("userEmail", us.Email), new Claim("id", us.Id.ToString())];
+            Claim[] identity =
+            [
+                new Claim(ClaimTypes.Role, "user"),
+                new Claim("userEmail", us.Email),
+                new Claim("id", us.Id.ToString())
+            ];
 
             string v = JwtHelper.CreateToken(identity);
 
             return Ok(new { message = "认证成功", token = v });
-
         }
     }
 }

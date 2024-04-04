@@ -1,15 +1,14 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
 using Microsoft.IdentityModel.Tokens;
+
 namespace CarRental.Common.Authrization
 {
     public class JwtHelper
     {
         public static string CreateToken(Claim[] identity)
         {
-
             string issuer = AppSettings.Jwt.Issuer;
             string audience = AppSettings.Jwt.Audience;
             string secretKey = AppSettings.Jwt.SecretKey;
@@ -20,9 +19,17 @@ namespace CarRental.Common.Authrization
             byte[] bytes = Encoding.UTF8.GetBytes(secretKey);
 
             SymmetricSecurityKey symmetricSecurityKey = new(bytes);
-            SigningCredentials credentials = new(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+            SigningCredentials credentials =
+                new(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
-            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(issuer, audience, identity, start, end, credentials);
+            JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(
+                issuer,
+                audience,
+                identity,
+                start,
+                end,
+                credentials
+            );
 
             string token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 

@@ -11,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-
 var config = builder.Configuration;
 
 AppSettings.Configure(config);
@@ -23,46 +22,46 @@ builder.Services.AddMySql<CarRentalContext>(str, ServerVersion.AutoDetect(str));
 Console.WriteLine(AppSettings.Jwt.SecretKey);
 Console.WriteLine(AppSettings.Jwt.Audience);
 Console.WriteLine(AppSettings.Jwt.Issuer);
-// ÁîÅÆÑéÖ¤²ÎÊý
+
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½
 var tokenValidationParameters = new TokenValidationParameters()
 {
-    ValidateIssuerSigningKey = true, // ÊÇ·ñÑéÖ¤SecurityKey
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.Jwt.SecretKey)), // ÄÃµ½SecurityKey
+    ValidateIssuerSigningKey = true, // ï¿½Ç·ï¿½ï¿½ï¿½Ö¤SecurityKey
+    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.Jwt.SecretKey)), // ï¿½Ãµï¿½SecurityKey
 
-    ValidateIssuer = true, // ÊÇ·ñÑéÖ¤Issuer
-    ValidIssuer = AppSettings.Jwt.Issuer, // ·¢ÐÐÈËIssuer
+    ValidateIssuer = true, // ï¿½Ç·ï¿½ï¿½ï¿½Ö¤Issuer
+    ValidIssuer = AppSettings.Jwt.Issuer, // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Issuer
 
-    ValidateAudience = true, // ÊÇ·ñÑéÖ¤Audience
-    ValidAudience = AppSettings.Jwt.Audience, // ¶©ÔÄÈËAudience
+    ValidateAudience = true, // ï¿½Ç·ï¿½ï¿½ï¿½Ö¤Audience
+    ValidAudience = AppSettings.Jwt.Audience, // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Audience
 
-    ValidateLifetime = true, // ÊÇ·ñÑéÖ¤Ê§Ð§Ê±¼ä
-    ClockSkew = TimeSpan.FromSeconds(30), // ¹ýÆÚÊ±¼äÈÝ´íÖµ£¬½â¾ö·þÎñÆ÷¶ËÊ±¼ä²»Í¬²½ÎÊÌâ£¨Ãë£©
+    ValidateLifetime = true, // ï¿½Ç·ï¿½ï¿½ï¿½Ö¤Ê§Ð§Ê±ï¿½ï¿½
+    ClockSkew = TimeSpan.FromSeconds(30), // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ý´ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä²»Í¬ï¿½ï¿½ï¿½ï¿½ï¿½â£¨ï¿½ë£©
 
     RequireExpirationTime = true,
-
 };
-builder.Services.AddAuthentication(opt =>
-
-{
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}
-).AddJwtBearer(opt => opt.TokenValidationParameters = tokenValidationParameters);
+builder
+    .Services.AddAuthentication(opt =>
+    {
+        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(opt => opt.TokenValidationParameters = tokenValidationParameters);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(op => op.
-AddPolicy("def",
-p => p.AllowAnyHeader().
-       AllowAnyHeader().
-       AllowAnyMethod().
-       WithOrigins(["http://localhost:5173"])
-
-
-));
-
+builder.Services.AddCors(op =>
+    op.AddPolicy(
+        "def",
+        p =>
+            p.AllowAnyHeader()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .WithOrigins(["http://localhost:5173"])
+    )
+);
 
 var app = builder.Build();
 
@@ -72,7 +71,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.UseCors("def");
 

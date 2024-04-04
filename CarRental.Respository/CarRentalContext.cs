@@ -5,8 +5,6 @@ namespace CarRental.Respository
 {
     public class CarRentalContext : DbContext
     {
-
-
         public DbSet<Manager> Managers { get; set; } = null!;
 
         public DbSet<User> Users { get; set; } = null!;
@@ -15,9 +13,8 @@ namespace CarRental.Respository
 
         public DbSet<Booking> Bookings { get; set; } = null!;
 
-        public CarRentalContext(DbContextOptions<CarRentalContext> options) : base(options)
-        {
-        }
+        public CarRentalContext(DbContextOptions<CarRentalContext> options)
+            : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

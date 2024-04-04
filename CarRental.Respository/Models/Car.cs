@@ -14,6 +14,6 @@
         public string Description { get; set; } = null!;
         public string Brand { get; set; } = null!;
         public Manager? Manager { get; set; }
-        public List<Booking>? Bookings { get; set; }
+        public List<Booking> Bookings { get; set; } = [];
     }
 }

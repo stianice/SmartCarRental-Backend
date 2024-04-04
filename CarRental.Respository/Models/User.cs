@@ -11,6 +11,6 @@
         public string Password { get; set; } = null!;
         public float Blance { get; set; }
 
-        public List<Booking>? Bookings { get; set; }
+        public List<Booking> Bookings { get; set; } = [];
     }
 }

@@ -10,22 +10,22 @@ namespace CarRental.Respository.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "brand",
-                table: "b_car",
-                type: "varchar(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "")
+            migrationBuilder
+                .AddColumn<string>(
+                    name: "brand",
+                    table: "b_car",
+                    type: "varchar(10)",
+                    maxLength: 10,
+                    nullable: false,
+                    defaultValue: ""
+                )
                 .Annotation("MySql:CharSet", "utf8mb4");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "brand",
-                table: "b_car");
+            migrationBuilder.DropColumn(name: "brand", table: "b_car");
         }
     }
 }

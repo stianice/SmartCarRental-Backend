@@ -39,8 +39,8 @@ namespace CarRental.WebApi.Controllers
                 rs.StatusCode = 500;
                 return rs;
             }
-
         }
+
         //// GET a specific manager by email
         //router.get('/api/v1/managers/:manager_email', ManagerController.getManagerByEmail);
         [HttpGet("{manager_email}")]
@@ -52,8 +52,17 @@ namespace CarRental.WebApi.Controllers
             {
                 return NotFound(new { message = "不存在该管理员账户" });
             }
-            var managerLinks = new { manager, links = new { self = new { href = $"http://localhost:3000/api/v1/managers/{manager_email}/cars" } } };
-
+            var managerLinks = new
+            {
+                manager,
+                links = new
+                {
+                    self = new
+                    {
+                        href = $"http://localhost:3000/api/v1/managers/{manager_email}/cars"
+                    }
+                }
+            };
 
             return Ok(managerLinks);
         }
@@ -61,24 +70,26 @@ namespace CarRental.WebApi.Controllers
         //// POST to register a new manager
         //router.post('/api/v1/managers', validateManager, ManagerController.registerManager);
         [HttpPost]
-        public void RegisterManager()
-        {
+        public void RegisterManager() { }
 
-        }
         //// PUT to modify all fields within a manager
         //router.put('/api/v1/managers/:manager_email', validateManager, ManagerController.updateManagerByEmail)
         [HttpPut("{manager_email}")]
-        public ActionResult UpdateManagerByEmail(string manager_email, [FromBody] Manager up_manager)
+        public ActionResult UpdateManagerByEmail(
+            string manager_email,
+            [FromBody] Manager up_manager
+        )
         {
             Manager? manager = _dbContext.Managers.FirstOrDefault(x => x.Email == manager_email);
 
             if (manager is null)
             {
                 return new NotFoundObjectResult(new { message = "用户不存在" });
-
             }
 
-            Manager? has_manager = _dbContext.Managers.FirstOrDefault(x => x.Email == up_manager.Email);
+            Manager? has_manager = _dbContext.Managers.FirstOrDefault(x =>
+                x.Email == up_manager.Email
+            );
             if (has_manager != null)
             {
                 return new ObjectResult(new { meesage = "新邮箱已被使用" }) { StatusCode = 409 };
@@ -90,24 +101,25 @@ namespace CarRental.WebApi.Controllers
             _dbContext.SaveChanges();
             return Ok(new { message = "管理员更新成功", manager });
         }
+
         //// PATCH to partially modify an existing user by email
         //router.patch('/api/v1/managers/:manager_email', ManagerController.patchManagerByEmail)
 
         [HttpPatch("{manager_email}")]
-        public ActionResult PatchManagerByEmail(string new_password,string manager_email)
+        public ActionResult PatchManagerByEmail(string new_password, string manager_email)
         {
             Manager? manager = _dbContext.Managers.SingleOrDefault(x => x.Email == manager_email);
-            if(manager is null)
+            if (manager is null)
             {
                 return NotFound(new { message = "管理员不存在" });
-                
             }
 
-            manager.Password=BCrypt.Net.BCrypt.HashPassword(new_password);
-            _dbContext .SaveChanges();
+            manager.Password = BCrypt.Net.BCrypt.HashPassword(new_password);
+            _dbContext.SaveChanges();
 
             return Ok(new { message = "管理员更新成功", manager });
         }
+
         //// DELETE all manager
         //router.delete('/api/v1/managers', ManagerController.deleteAllManager);
         [HttpDelete()]
@@ -120,6 +132,7 @@ namespace CarRental.WebApi.Controllers
             }
             return BadRequest("删除失败");
         }
+
         //// DELETE to remove manager by email
         //router.delete('/api/v1/managers/:manager_email', ManagerController.deleteManagerByEmail)
         [HttpDelete("{manager_email}")]
@@ -132,15 +145,19 @@ namespace CarRental.WebApi.Controllers
             }
             return NotFound(new { message = "管理员不存在" });
         }
+
         //// Authenticate the manager login
         //router.post('/api/v1/managers/login', ManagerController.authenticateManager);
         [HttpPost("login")]
         [AllowAnonymous]
         public ActionResult AuthenticateManager(LoginParams loginParams)
         {
-            var man = _dbContext.Managers.Select(x => new { x.Password, x.Email }).FirstOrDefault(x => x.Email == loginParams.Email);
+            var man = _dbContext
+                .Managers.Select(x => new { x.Password, x.Email })
+                .FirstOrDefault(x => x.Email == loginParams.Email);
 
-            if (man is null) return this.NotFound(new { message = "用户不存在" });
+            if (man is null)
+                return this.NotFound(new { message = "用户不存在" });
 
             var flag = BCrypt.Net.BCrypt.Verify(loginParams.Password, man.Password);
 
@@ -151,14 +168,15 @@ namespace CarRental.WebApi.Controllers
                 return rs;
             }
 
-
-            Claim[] identity = [new Claim(ClaimTypes.Role, "manager"), new Claim("managerEmail", man.Email)];
+            Claim[] identity =
+            [
+                new Claim(ClaimTypes.Role, "manager"),
+                new Claim("managerEmail", man.Email)
+            ];
 
             string v = JwtHelper.CreateToken(identity);
 
             return Ok(new { message = "认证成功", token = v });
         }
-
-
     }
 }
