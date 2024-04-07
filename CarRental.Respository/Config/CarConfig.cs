@@ -8,13 +8,13 @@ namespace CarRental.Respository.Models
         public void Configure(EntityTypeBuilder<Car> builder)
         {
             builder
-                .ToTable("b_car", tb => tb.HasComment("车辆表"))
-                .HasKey(x => x.Id)
+                .ToTable("t_car", tb => tb.HasComment("车辆表"))
+                .HasKey(x => x.CarId)
                 .HasName("PRIMARY");
 
             builder.Property(x => x.Price).HasColumnName("price");
 
-            builder.Property(x => x.Image).HasColumnType("blob").HasColumnName("image");
+            builder.Property(x => x.Image).HasColumnType("longtext").HasColumnName("image");
 
             builder.Property(x => x.Color).HasMaxLength(10).HasColumnName("color");
             builder.Property(x => x.Brand).HasMaxLength(10).HasColumnName("brand");

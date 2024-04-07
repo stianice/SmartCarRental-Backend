@@ -12,9 +12,9 @@ namespace CarRental.Common.Authrization
             string issuer = AppSettings.Jwt.Issuer;
             string audience = AppSettings.Jwt.Audience;
             string secretKey = AppSettings.Jwt.SecretKey;
-            Console.WriteLine(secretKey);
+
             DateTime start = DateTime.UtcNow;
-            DateTime end = DateTime.UtcNow.AddMinutes(20);
+            DateTime end = DateTime.UtcNow.AddHours(2);
 
             byte[] bytes = Encoding.UTF8.GetBytes(secretKey);
 

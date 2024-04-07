@@ -11,7 +11,7 @@ namespace CarRental.Respository.Models
                 .ToTable("t_user", tb => tb.HasComment("用户表"))
                 .HasCharSet("utf8mb4")
                 .UseCollation("utf8mb4_general_ci")
-                .HasKey(x => x.Id)
+                .HasKey(x => x.UserId)
                 .HasName("PRIMARY");
 
             builder.Property(x => x.Fname).HasMaxLength(15).HasColumnName("fname");
@@ -24,7 +24,7 @@ namespace CarRental.Respository.Models
 
             builder.Property(x => x.PhoneNumber).HasMaxLength(13).HasColumnName("phonenumber");
 
-            builder.Property(x => x.Blance).HasColumnName("blance");
+            builder.Property(x => x.Balance).HasColumnName("balance");
 
             builder.HasMany(x => x.Bookings).WithOne(x => x.User).IsRequired();
         }

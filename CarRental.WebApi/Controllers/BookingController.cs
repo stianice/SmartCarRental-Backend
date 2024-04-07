@@ -1,10 +1,9 @@
-﻿using CarRental.Respository;
+﻿using CarRental.Common;
 using CarRental.Respository.Models;
-using CarRental.Services.Dto;
+using CarRental.Services;
+using CarRental.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CarRental.WebApi.Controllers
 {
@@ -12,37 +11,27 @@ namespace CarRental.WebApi.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private readonly CarRentalContext _db;
+        private readonly BookingService _bokingService;
 
-        public BookingController(CarRentalContext db)
+        public BookingController(BookingService bokingService)
         {
-            _db = db;
+            _bokingService = bokingService;
         }
 
         // GET all bookings
         [HttpGet]
-        public ActionResult GetAllBookings()
+        public AppResult GetAllBookings()
         {
-            Booking[] bookings = _db.Bookings.Include(x => x.Car).ToArray();
-            if (bookings.IsNullOrEmpty())
-            {
-                return NotFound("不存在订单");
-            }
+            Booking[] bookings = _bokingService.GetAllBookings();
 
-            return Ok(bookings);
+            return AppResult.Status200OKWithData(bookings);
         }
 
         // GET a specific booking by bookingReference
         [HttpGet("bookings/{booking_reference}")]
-        public ActionResult GetBookingByRef(string booking_reference)
+        public AppResult GetBookingByRef(string booking_reference)
         {
-            Booking? booking = _db
-                .Bookings.Include(x => x.Car)
-                .FirstOrDefault(x => x.BookingReference == booking_reference);
-            if (booking is null)
-            {
-                return NotFound(new { message = "订单不存在" });
-            }
+            Booking booking = _bokingService.GetBookingByRef(booking_reference);
 
             var bookingLiks = new
             {
@@ -60,48 +49,23 @@ namespace CarRental.WebApi.Controllers
                 }
             };
 
-            return Ok(bookingLiks);
+            return AppResult.Status200OKWithData(bookingLiks);
         }
 
         // GET all bookings of a user by user email
         [HttpGet("users/{user_email}/bookings")]
-        public ActionResult GetAllBookingsByUser(string user_email)
+        public AppResult GetAllBookingsByUser(string user_email)
         {
-            User? user = _db
-                .Users.Include(x => x.Bookings)
-                .ThenInclude(x => x.Car)
-                .FirstOrDefault(x => x.Email == user_email);
+            var bookings = _bokingService.GetBookingsByUserEmail(user_email);
 
-            if (user == null)
-            {
-                return NotFound(new { message = "用户不存在" });
-            }
-
-            if (user.Bookings.IsNullOrEmpty())
-            {
-                return NotFound(new { message = "订单不存在" });
-            }
-
-            return Ok(user.Bookings);
+            return AppResult.Status200OKWithData(bookings);
         }
 
         // GET specific booking by user email and bookingReference
         [HttpGet("users/{user_email}/bookings/{booking_reference}")]
-        public ActionResult GetBookingByUserAndRef(string user_email, string booking_reference)
+        public AppResult GetBookingByUserAndRef(string user_email, string booking_reference)
         {
-            Booking? booking = _db
-                .Bookings.Include(x => x.User)
-                .FirstOrDefault(x => x.BookingReference == booking_reference);
-
-            if (booking == null)
-            {
-                return NotFound(new { message = "该用户的订单不存在" });
-            }
-
-            if (booking.User == null)
-            {
-                return NotFound(new { message = "用户不存在" });
-            }
+            Booking booking = _bokingService.GetBookingByUserAndRef(user_email, booking_reference);
 
             var bookingLinks = new
             {
@@ -119,100 +83,37 @@ namespace CarRental.WebApi.Controllers
                 }
             };
 
-            return Ok(bookingLinks);
+            return AppResult.Status200OKWithData(bookingLinks);
         }
 
         // POST to create a new booking for a specific user
         [HttpPost("users/{user_email}/bookings")]
-        public ActionResult CreateBookingForUser(string user_email, PostBookingParams bookingpms)
+        public AppResult CreateBookingForUser(
+            string user_email,
+            [FromBody] PostBookingParams bookingpms
+        )
         {
-            User? user = _db.Users.FirstOrDefault(x => x.Email == user_email);
+            var booking = _bokingService.CreateBookingForUser(user_email, bookingpms);
 
-            if (user is null)
-            {
-                return NotFound(new { message = "用户不存在" });
-            }
-
-            if (bookingpms.BookingReference != null)
-            {
-                if (_db.Bookings.FirstOrDefault(x=>x.BookingReference==bookingpms.BookingReference) != null)
-                {
-                    return Conflict(new { message = "此订单号已存在！" });
-                }
-            }
-            else
-            {
-                bookingpms.BookingReference = shortid.ShortId.Generate();
-            }
-
-            var carregistration = bookingpms.CarRegistration;
-
-            Car? car = _db.Cars.FirstOrDefault(x => x.Registration == carregistration);
-            if (car is null)
-            {
-                return NotFound(new { message = "无此款车辆" });
-            }
-            var booking = new Booking()
-            {
-                Car = car,
-                BookingReference = bookingpms.BookingReference,
-                StartDate = bookingpms.StartDate,
-                EndDate = bookingpms.EndDate,
-                Content = bookingpms.Content,
-                Staus = bookingpms.Staus,
-                User = user
-            };
-            _db.Bookings.Add(booking) ;
-            _db.SaveChanges();
-
-            return Ok(new { message= 'Booking successful', booking });
+            return AppResult.Status200OK("订单创建成功", booking);
         }
 
         // DELETE all bookings
-        [Authorize(Roles ="manager")]
+        [Authorize(Roles = "manager")]
         [HttpDelete("bookings")]
-        public ActionResult RemoveAllBookings()
+        public AppResult RemoveAllBookings()
         {
-            try
-            {
-                _db.Bookings.ExecuteDelete();
-                return Ok(new {message="成功移除所有订单"});
-
-            }
-            catch (Exception ex)
-            {
-
-                return new ObjectResult(ex.Message) { StatusCode = 500 };
-
-            }
-
+            _bokingService.RemoveAllBookings();
+            return AppResult.Status200OKWithMessage("成功移除所有订单");
         }
 
         // DELETE to remove booking by user and bookingReference
 
         [HttpDelete("users/{user_email}/bookings/{booking_reference}")]
-        public ActionResult removeBookingByUserAndRef(
-            string user_email,
-            string booking_reference
-        ) {
-            try
-            {
-                User user = _db.Users.Include(x=>x.Bookings).Single(x => x.Email == user_email);
-
-                Booking booking = user.Bookings.Where(x=>x.BookingReference==booking_reference).First();
-
-                user.Bookings.Remove(booking);
-
-                return Ok(new { message = "订单删除成功" });
-
-
-            }
-            catch (Exception)
-            {
-                return NotFound(new { message = "该用户不存在该订单" });
-
-            }
-
+        public AppResult removeBookingByUserAndRef(string user_email, string booking_reference)
+        {
+            _bokingService.removeBookingByUserAndRef(user_email, booking_reference);
+            return AppResult.Status200OKWithMessage("成功移除该订单");
         }
     }
 }

@@ -11,10 +11,10 @@ namespace CarRental.Respository.Models
                 .ToTable("t_booking", tb => tb.HasComment("订单表"))
                 .HasCharSet("utf8mb4")
                 .UseCollation("utf8mb4_general_ci")
-                .HasKey(x => x.Id)
+                .HasKey(x => x.BookingId)
                 .HasName("PRIMARY");
 
-            builder.Property(x => x.Staus).HasMaxLength(20).HasColumnName("status");
+            builder.Property(x => x.Status).HasMaxLength(20).HasColumnName("status");
 
             builder.Property(x => x.Content).HasColumnType("char").HasColumnName("content");
 

@@ -1,82 +1,77 @@
-using System.Text;
 using CarRental.Common;
 using CarRental.Respository;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using NLog;
+using NLog.Web;
 
-var builder = WebApplication.CreateBuilder(args);
+var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 
-// Add services to the container.
+logger.Debug("启动中……");
 
-builder.Services.AddControllers();
-
-var config = builder.Configuration;
-
-AppSettings.Configure(config);
-
-var str = config["MySql:ConnectStrings"];
-
-builder.Services.AddMySql<CarRentalContext>(str, ServerVersion.AutoDetect(str));
-
-Console.WriteLine(AppSettings.Jwt.SecretKey);
-Console.WriteLine(AppSettings.Jwt.Audience);
-Console.WriteLine(AppSettings.Jwt.Issuer);
-
-// ������֤����
-var tokenValidationParameters = new TokenValidationParameters()
+try
 {
-    ValidateIssuerSigningKey = true, // �Ƿ���֤SecurityKey
-    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.Jwt.SecretKey)), // �õ�SecurityKey
+    var builder = WebApplication.CreateBuilder(args);
 
-    ValidateIssuer = true, // �Ƿ���֤Issuer
-    ValidIssuer = AppSettings.Jwt.Issuer, // ������Issuer
+    var Configuration = builder.Configuration;
 
-    ValidateAudience = true, // �Ƿ���֤Audience
-    ValidAudience = AppSettings.Jwt.Audience, // ������Audience
+    AppSettings.Configure(Configuration);
+    builder.Host.UseNLog();
 
-    ValidateLifetime = true, // �Ƿ���֤ʧЧʱ��
-    ClockSkew = TimeSpan.FromSeconds(30), // ����ʱ���ݴ�ֵ�������������ʱ�䲻ͬ�����⣨�룩
+    //统一返回设置，异常返回
+    builder.Services.AddControllers().AddDataValidation().AddAppResult();
 
-    RequireExpirationTime = true,
-};
-builder
-    .Services.AddAuthentication(opt =>
+    var con = Configuration["MySql:ConnectStrings"];
+
+    //Respository层
+    builder.Services.AddMySql<CarRentalContext>(con, ServerVersion.AutoDetect(con));
+
+    //Service层
+    builder.Services.AddAutoServices("CarRental.Services");
+
+    //Json
+    builder.Services.AddSimpleJsonOptions();
+
+    //授权
+    builder.Services.AddJwtAuthentication();
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+
+    builder.Services.AddSimpleSwagger(options =>
     {
-        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(opt => opt.TokenValidationParameters = tokenValidationParameters);
+        options.SwaggerDoc("v1", new OpenApiInfo { Title = "三层接口文档v1", Version = "v1" });
+    });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    //跨域
+    builder.Services.AddSimpleCors();
 
-builder.Services.AddCors(op =>
-    op.AddPolicy(
-        "def",
-        p =>
-            p.AllowAnyHeader()
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithOrigins(["http://localhost:5173"])
-    )
-);
+    var app = builder.Build();
 
-var app = builder.Build();
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "CarRental API v1");
+        });
+    }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseCors();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-app.UseCors("def");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    logger.Error(ex, "由于发生异常，导致程序中止！");
+    throw;
+}
+finally
+{
+    LogManager.Shutdown();
+}

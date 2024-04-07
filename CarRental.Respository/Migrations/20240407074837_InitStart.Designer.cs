@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarRental.Respository.Migrations
 {
     [DbContext(typeof(CarRentalContext))]
-    [Migration("20240403122949_change_car_brand_c")]
-    partial class change_car_brand_c
+    [Migration("20240407074837_InitStart")]
+    partial class InitStart
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,11 @@ namespace CarRental.Respository.Migrations
 
             modelBuilder.Entity("CarRental.Respository.Models.Booking", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("BookingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("BookingId"));
 
                     b.Property<string>("BookingReference")
                         .IsRequired()
@@ -52,7 +52,7 @@ namespace CarRental.Respository.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Staus")
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)")
@@ -61,7 +61,7 @@ namespace CarRental.Respository.Migrations
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("Id")
+                    b.HasKey("BookingId")
                         .HasName("PRIMARY");
 
                     b.HasIndex("CarId");
@@ -79,11 +79,11 @@ namespace CarRental.Respository.Migrations
 
             modelBuilder.Entity("CarRental.Respository.Models.Car", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("CarId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("CarId"));
 
                     b.Property<string>("Brand")
                         .IsRequired()
@@ -98,13 +98,14 @@ namespace CarRental.Respository.Migrations
                         .HasColumnName("color");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("description");
 
-                    b.Property<byte[]>("Image")
+                    b.Property<string>("Image")
                         .IsRequired()
-                        .HasColumnType("blob")
+                        .HasColumnType("longtext")
                         .HasColumnName("image");
 
                     b.Property<long>("ManagerId")
@@ -115,16 +116,17 @@ namespace CarRental.Respository.Migrations
                         .HasColumnName("price");
 
                     b.Property<string>("Registration")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("registration");
 
-                    b.HasKey("Id")
+                    b.HasKey("CarId")
                         .HasName("PRIMARY");
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("b_car", null, t =>
+                    b.ToTable("t_car", null, t =>
                         {
                             t.HasComment("车辆表");
                         });
@@ -132,15 +134,19 @@ namespace CarRental.Respository.Migrations
 
             modelBuilder.Entity("CarRental.Respository.Models.Manager", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("ManagerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("ManagerId"));
 
-                    b.Property<float>("Blance")
+                    b.Property<string>("Address")
+                        .HasColumnType("longtext")
+                        .HasColumnName("address");
+
+                    b.Property<float>("Balance")
                         .HasColumnType("float")
-                        .HasColumnName("blance");
+                        .HasColumnName("balance");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -166,11 +172,7 @@ namespace CarRental.Respository.Migrations
                         .HasColumnType("varchar(150)")
                         .HasColumnName("password");
 
-                    b.Property<string>("address")
-                        .HasColumnType("longtext")
-                        .HasColumnName("address");
-
-                    b.HasKey("Id")
+                    b.HasKey("ManagerId")
                         .HasName("PRIMARY");
 
                     b.ToTable("t_manager", null, t =>
@@ -184,15 +186,15 @@ namespace CarRental.Respository.Migrations
 
             modelBuilder.Entity("CarRental.Respository.Models.User", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<long>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("UserId"));
 
-                    b.Property<float>("Blance")
+                    b.Property<float>("Balance")
                         .HasColumnType("float")
-                        .HasColumnName("blance");
+                        .HasColumnName("balance");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -224,7 +226,7 @@ namespace CarRental.Respository.Migrations
                         .HasColumnType("varchar(13)")
                         .HasColumnName("phonenumber");
 
-                    b.HasKey("Id")
+                    b.HasKey("UserId")
                         .HasName("PRIMARY");
 
                     b.ToTable("t_user", null, t =>

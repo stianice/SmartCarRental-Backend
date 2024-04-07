@@ -1,10 +1,8 @@
-﻿using CarRental.Respository;
+﻿using CarRental.Common;
 using CarRental.Respository.Models;
+using CarRental.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CarRental.WebApi.Controllers
 {
@@ -12,11 +10,11 @@ namespace CarRental.WebApi.Controllers
     [ApiController]
     public class CarController : ControllerBase
     {
-        private readonly CarRentalContext _db;
+        private readonly CarService _carService;
 
-        public CarController(CarRentalContext db)
+        public CarController(CarService carService)
         {
-            _db = db;
+            _carService = carService;
         }
 
         // Create a new car
@@ -37,251 +35,110 @@ namespace CarRental.WebApi.Controllers
         // Create a new car by manager email
         [Authorize(Roles = "manager")]
         [HttpPost("managers/{manager_email}/cars")]
-        public ActionResult CreateCarByManagerEmail(Car car, string manager_email)
+        public AppResult CreateCarByManagerEmail([FromBody] Car postCar, string manager_email)
         {
-            int m = _db.Managers.Count(x => x.Email == manager_email);
-            if (m < 1)
-            {
-                return NotFound(new { meesage = "管理员不存在！" });
-            }
-            _db.Cars.Add(car);
-            int row = _db.SaveChanges();
-            if (row > 0)
-            {
-                return Ok(new { message = "车辆保存成功", car });
-            }
+            var car = _carService.CreateCarByManagerEmail(postCar, manager_email);
 
-            return new ObjectResult(new { message = "车辆保存失败" }) { StatusCode = 400 };
+            return AppResult.Status200OKWithData(car);
         }
 
         //// Return a list of all cars
         [HttpGet("cars")]
-        public ActionResult GetAllCars()
+        public AppResult GetAllCars()
         {
-            try
-            {
-                Car[] cars = _db.Cars.ToArray();
-
-                return Ok(cars);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return new ObjectResult(ex.Message) { StatusCode = 500 };
-            }
+            return AppResult.Status200OKWithData(_carService.GetAllCar());
         }
 
         //// Return the car with the given registration
         //router.get('/api/v1/cars/:registration', carController.getCarByReg);
         [HttpGet("cars/{registration}")]
-        public ActionResult GetCarByReg(string registration)
+        public AppResult GetCarByReg(string registration)
         {
-            Car? car = _db.Cars.FirstOrDefault(x => x.Registration == registration);
-            if (car is null)
-            {
-                return NotFound(new { message = "车辆不存在" });
-            }
+            Car car = _carService.GetCarByReg(registration);
+
             var carLinks = new
             {
                 car,
-                links = new
-                {
-                    car,
-                    links = new { cars = new { href = "http://localhost:5173/#fleet" } }
-                }
+                links = new { cars = new { href = "http://localhost:5173/#fleet" } }
             };
-            return Ok(carLinks);
+            return AppResult.Status200OKWithData(carLinks);
         }
 
         //// Return a sort list of all cars by price. asending: sort = 1 ; desending: sort = -1
         //router.get('/api/v1/cars/price/:sort', carController.getCarsByPriceSort);
         [HttpGet("cars/price/{sort}")]
-        public ActionResult GetCarsByPriceSort(string sort)
+        public AppResult GetCarsByPriceSort(string sort)
         {
-            Car[] cars;
-            try
-            {
-                if (sort == "asc")
-                {
-                    cars = _db.Cars.OrderBy(x => x.Price).ToArray();
-                }
-                if (sort == "desc")
-                {
-                    cars = _db.Cars.OrderByDescending(x => x.Price).ToArray();
-                }
-                else
-                {
-                    cars = _db.Cars.OrderBy(x => x.Price).ToArray();
-                }
-                return Ok(cars);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return new ObjectResult(ex.Message);
-            }
+            return AppResult.Status200OKWithData(_carService.GetCarsByPriceSort(sort));
         }
 
         //// Return a list of cars filtered by color
         //router.get('/api/v1/cars/color/:color', carController.getCarsByColor);
         [HttpGet("cars/color/{color}")]
-        public ActionResult GetCarsByColor(string color)
+        public AppResult GetCarsByColor(string color)
         {
-            try
-            {
-                Car[] cars = _db.Cars.Where(x => x.Color == color).ToArray();
-
-                return Ok(cars);
-            }
-            catch (Exception ex)
-            {
-                return new ObjectResult(ex.Message) { StatusCode = 500 };
-            }
-            ;
+            return AppResult.Status200OKWithData(_carService.GetCarsByColor(color));
         }
 
         //// Return a list of cars filtered by brand
         //router.get('/api/v1/cars/brand/:brand', carController.getCarsByBrand);
         [HttpGet("cars/brand/{brand}")]
-        public ActionResult GetCarsByBrand(string brand)
+        public AppResult GetCarsByBrand(string brand)
         {
-            try
-            {
-                Car[] cars = _db.Cars.Where(x => x.Brand == brand).ToArray();
-
-                return Ok(cars);
-            }
-            catch (Exception ex)
-            {
-                return new ObjectResult(ex.Message) { StatusCode = 500 };
-            }
-            ;
+            return AppResult.Status200OKWithData(_carService.GetCarsByBrand(brand));
         }
 
         //// Return a list of cars filtered by color and brand
         //router.get('/api/v1/cars/color&brand/:color/:brand', carController.getCarsByColorAndBrand);
         [HttpGet("cars/color&brand/{color}/{brand}")]
-        public ActionResult GetCarsByColorAndBrand(string color, string brand)
+        public AppResult GetCarsByColorAndBrand(string color, string brand)
         {
-            try
-            {
-                Car[] cars = _db.Cars.Where(x => x.Color == color && x.Brand == brand).ToArray();
-
-                return Ok(cars);
-            }
-            catch (Exception ex)
-            {
-                return new ObjectResult(ex.Message) { StatusCode = 500 };
-            }
+            return AppResult.Status200OKWithData(_carService.GetCarsByColorAndBrand(color, brand));
         }
 
         //// Return a list of cars by manager email
         //router.get('/api/v1/managers/:manager_email/cars', carController.getCarsByManagerEmail);
         [HttpGet("managers/{manager_email}/cars")]
-        public ActionResult GetCarsByManagerEmail(string manager_email)
+        public AppResult GetCarsByManagerEmail(string manager_email)
         {
-            Manager? manager = _db
-                .Managers.Include(x => x.Cars)
-                .FirstOrDefault(x => x.Email == manager_email);
-            if (manager is null)
-            {
-                return NotFound(new { message = "管理员不存在" });
-            }
-            if (manager.Cars is null)
-            {
-                return NotFound(new { message = "管理员还未添加车辆" });
-            }
-            return Ok(manager.Cars);
+            var cars = _carService.GetCarsByManagerEmail(manager_email);
+
+            return AppResult.Status200OKWithData(cars);
         }
 
         //// Return a car by manager email and car registration
         //router.get('/api/v1/managers/:manager_email/cars/:registration', carController.getCarByManagerEmailAndReg);
         [HttpGet("managers/{manager_email}/cars/{registration}")]
-        public ActionResult GetCarByManagerEmailAndReg(string manager_email, string registration)
+        public AppResult GetCarByManagerEmailAndReg(string manager_email, string registration)
         {
-            Manager? manager = _db
-                .Managers.Include(x => x.Cars)
-                .FirstOrDefault(x => x.Email == manager_email);
-            if (manager is null)
-            {
-                return NotFound(new { message = "管理员不存在" });
-            }
-
-            if (manager.Cars.IsNullOrEmpty())
-            {
-                return NotFound(new { message = "管理员还未添加车辆" });
-            }
-            List<Car> cars = new();
-            cars = manager.Cars!.Where(x => x.Registration == registration).ToList();
-            if (cars.IsNullOrEmpty())
-            {
-                return NotFound(new { message = "管理员还未添加车辆" });
-            }
-            return Ok(cars);
+            var car = _carService.GetCarByManagerEmailAndReg(manager_email, registration);
+            return AppResult.Status200OKWithData(car);
         }
 
         //// Return a car associated with a booking
         //router.get('/api/v1/bookings/:booking_reference/car', carController.getCarByBookingRef);
         [HttpGet("bookings/{booking_reference}/car")]
-        public ActionResult GetCarByBookingRef(string booking_reference)
+        public AppResult GetCarByBookingRef(string booking_reference)
         {
-            Booking? booking = _db
-                .Bookings.Include(x => x.Car)
-                .FirstOrDefault(x => x.BookingReference == booking_reference);
-
-            if (booking is null)
-            {
-                return NotFound(new { message = "不存在订单" });
-            }
-
-            return Ok(booking.Car);
+            return AppResult.Status200OKWithData(_carService.GetCarByBookingRef(booking_reference));
         }
 
         //// Return a car associated with a booking and a user
         //router.get('/api/v1/users/:user_email/bookings/:booking_reference/car', carController.getCarByBookingAndUser);
         [HttpGet("users/{user_email}/bookings/{booking_reference}/car")]
-        public ActionResult GetCarByBookingAndUser(string user_email, string booking_reference)
+        public AppResult GetCarByBookingAndUser(string user_email, string booking_reference)
         {
-            try
-            {
-                User? user = _db
-                    .Users.Include(x => x.Bookings)
-                    .ThenInclude(x => x.Car)
-                    .FirstOrDefault(x => x.Email == user_email);
-
-                if (user is null)
-                {
-                    return NotFound(new { message = "用户不存在" });
-                }
-
-                var booking = user.Bookings!.Where(x => x.BookingReference == booking_reference)
-                    .FirstOrDefault();
-
-                if (booking is null)
-                {
-                    return NotFound(new { message = "用户没有相关的订单" });
-                }
-
-                return Ok(booking.Car);
-            }
-            catch (Exception)
-            {
-                return NotFound(new { message = "用户不存在" });
-            }
+            var car = _carService.GetCarByBookingAndUser(user_email, booking_reference);
+            return AppResult.Status200OKWithData(car);
         }
 
         //// Update the car with the given registration
         //router.put('/api/v1/cars/:registration', validateCar, carController.updateCarByReg);
         [HttpPut("cars/{registration}")]
-        public ActionResult UpdateCarByReg(string registration, [FromBody] Car up_car)
+        public AppResult UpdateCarByReg(string registration, [FromBody] Car up_car)
         {
-            Car? car = _db.Cars.SingleOrDefault(x => x.Registration == registration);
-            if (car is null)
-            {
-                return NotFound(new { message = "未找到车辆" });
-            }
-
-            car = up_car;
-            _db.SaveChanges();
-            return Ok(car);
+            Car car = _carService.UpdateCarByReg(registration, up_car);
+            return AppResult.Status200OKWithData(car);
         }
 
         //// Partially update the car with the given registration
@@ -301,75 +158,46 @@ namespace CarRental.WebApi.Controllers
         //// Delete the car with the given registration
         //router.delete('/api/v1/cars/:registration', carController.deleteCarByReg);
         [HttpDelete("cars/{registration}")]
-        public ActionResult DeleteCarByReg(string registration)
+        public AppResult DeleteCarByReg(string registration)
         {
-            int row = _db.Cars.Where(x => x.Registration == registration).ExecuteDelete();
-            if (row < 1)
-            {
-                return NotFound(new { message = "车辆未找到" });
-            }
+            _carService.DeleteCarByReg(registration);
 
-            return Ok();
+            return AppResult.Status200OK();
         }
 
         //// Delete all cars
         //router.delete('/api/v1/cars', carController.deleteAllCars);
         [HttpDelete("cars")]
-        public ActionResult DeleteAllCars()
+        public AppResult DeleteAllCars()
         {
-            int row = _db.Cars.ExecuteDelete();
-            if (row == 0)
-            {
-                return NotFound(new { message = "车辆未找到" });
-            }
-            return Ok(new { message = $"成功删除: {row} 辆车" });
+            long row = _carService.DeleteAllCars();
+
+            return AppResult.Status200OKWithMessage($"成功删除: {row} 辆车");
         }
 
         //// Delete car by manager email in database and remove car_registration from manager
         //router.delete('/api/v1/managers/:manager_email/cars/:registration', carController.deleteCarByManagerEmail);
         [HttpDelete("managers/{manager_email}/cars/{registration}")]
-        public ActionResult DeleteCarByManagerEmail(string manager_email, string registration)
+        public AppResult DeleteCarByManagerEmail(string manager_email, string registration)
         {
-            Manager? manager = _db
-                .Managers.Include(x => x.Cars)
-                .SingleOrDefault(x => x.Email == manager_email);
-            if (manager is null)
-            {
-                return NotFound(new { message = "不存在此管理员" });
-            }
-            if (manager.Cars.IsNullOrEmpty())
-            {
-                return NotFound(new { message = "不存在车辆" });
-            }
-            Car? car = manager.Cars.FirstOrDefault(x => x.Registration == registration);
-            if (car is null)
-            {
-                return NotFound(new { message = "不存在车辆" });
-            }
-            _db.Cars.Remove(car);
-            _db.SaveChanges();
-            return Ok(car);
+            _carService.DeleteCarByManagerEmail(manager_email, registration);
+            return AppResult.Status200OKWithMessage("删除车辆成功");
         }
 
         //router.get('/api/v1/cars/:car_registration/image.png', carController.getCarImage);
         [HttpGet("cars/{car_registration}/image.png")]
         public ActionResult GetCarImage(string car_registration)
         {
-            Car? car = _db.Cars.FirstOrDefault(x => x.Registration == car_registration);
-            if (car is null)
-            {
-                return NotFound(new { message = "不存在车辆" });
-            }
-            string im = Convert.ToBase64String(car.Image);
+            Car car = _carService.GetCarByReg(car_registration);
 
-            string image = im.Split(',')[1];
-            return new OkObjectResult(image)
-            {
-                ContentTypes = new MediaTypeCollection
-                {
-                    new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("image/png")
-                }
-            };
+            string image = car.Image.Split(',')[1];
+
+            Response.ContentType = "image/png";
+
+            Response.ContentLength = image.Length;
+
+            Response.WriteAsync(image);
+            return Ok();
         }
     }
 }

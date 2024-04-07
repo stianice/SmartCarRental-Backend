@@ -2,7 +2,7 @@
 {
     public class Booking
     {
-        public long Id { get; set; }
+        public long BookingId { get; set; }
 
         public string? BookingReference { get; set; }
 
@@ -11,7 +11,7 @@
 
         public string? Content { get; set; }
 
-        public string Staus { get; set; } = null!;
+        public string Status { get; set; } = null!;
 
         public DateTime StartDate { get; set; }
 

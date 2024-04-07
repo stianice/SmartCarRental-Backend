@@ -1,8 +1,5 @@
-﻿using System.Security.Claims;
-using CarRental.Common.Authrization;
-using CarRental.Respository;
+﻿using CarRental.Respository;
 using CarRental.Respository.Models;
-using CarRental.Services.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -66,11 +63,6 @@ namespace CarRental.WebApi.Controllers
 
             return Ok(managerLinks);
         }
-
-        //// POST to register a new manager
-        //router.post('/api/v1/managers', validateManager, ManagerController.registerManager);
-        [HttpPost]
-        public void RegisterManager() { }
 
         //// PUT to modify all fields within a manager
         //router.put('/api/v1/managers/:manager_email', validateManager, ManagerController.updateManagerByEmail)
@@ -136,7 +128,7 @@ namespace CarRental.WebApi.Controllers
         //// DELETE to remove manager by email
         //router.delete('/api/v1/managers/:manager_email', ManagerController.deleteManagerByEmail)
         [HttpDelete("{manager_email}")]
-        public ActionResult deleteManagerByEmail(string manager_email)
+        public ActionResult DeleteManagerByEmail(string manager_email)
         {
             var row = _dbContext.Managers.Where(x => x.Email == manager_email).ExecuteDelete();
             if (row > 0)
@@ -148,35 +140,5 @@ namespace CarRental.WebApi.Controllers
 
         //// Authenticate the manager login
         //router.post('/api/v1/managers/login', ManagerController.authenticateManager);
-        [HttpPost("login")]
-        [AllowAnonymous]
-        public ActionResult AuthenticateManager(LoginParams loginParams)
-        {
-            var man = _dbContext
-                .Managers.Select(x => new { x.Password, x.Email })
-                .FirstOrDefault(x => x.Email == loginParams.Email);
-
-            if (man is null)
-                return this.NotFound(new { message = "用户不存在" });
-
-            var flag = BCrypt.Net.BCrypt.Verify(loginParams.Password, man.Password);
-
-            if (!flag)
-            {
-                var rs = new ObjectResult(new { message = "密码错误" });
-                rs.StatusCode = 401;
-                return rs;
-            }
-
-            Claim[] identity =
-            [
-                new Claim(ClaimTypes.Role, "manager"),
-                new Claim("managerEmail", man.Email)
-            ];
-
-            string v = JwtHelper.CreateToken(identity);
-
-            return Ok(new { message = "认证成功", token = v });
-        }
     }
 }

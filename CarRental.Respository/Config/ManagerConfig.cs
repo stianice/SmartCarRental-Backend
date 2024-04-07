@@ -13,9 +13,9 @@ namespace CarRental.Respository.Models
                 .UseCollation("utf8mb4_general_ci");
 
             //设置主键
-            builder.HasKey(x => x.Id).HasName("PRIMARY");
+            builder.HasKey(x => x.ManagerId).HasName("PRIMARY");
 
-            builder.Property(x => x.address).HasColumnName("address");
+            builder.Property(x => x.Address).HasColumnName("address");
 
             builder.Property(x => x.Fname).HasMaxLength(15).HasColumnName("fname");
 
@@ -25,7 +25,7 @@ namespace CarRental.Respository.Models
 
             builder.Property(x => x.Email).HasMaxLength(18).HasColumnName("email");
 
-            builder.Property(x => x.Blance).HasColumnName("blance");
+            builder.Property(x => x.Balance).HasColumnName("balance");
 
             builder.HasMany(x => x.Cars).WithOne(x => x.Manager).IsRequired();
         }
