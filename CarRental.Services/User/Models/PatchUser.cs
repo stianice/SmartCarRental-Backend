@@ -10,10 +10,16 @@ namespace CarRental.Services.Models
         public string? Email { get; set; }
 
         [Required]
-        public string? Fname { get; set; }
+        public string? City { get; set; }
 
         [Required]
-        public string? Lname { get; set; }
+        public string? Identity { get; set; }
+
+        [Required]
+        public string? Name { get; set; }
+
+        [Required]
+        public string? Sex { get; set; }
 
         [Required]
         public string? PhoneNumber { get; set; }

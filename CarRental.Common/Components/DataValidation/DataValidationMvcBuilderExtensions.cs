@@ -1,5 +1,4 @@
 ﻿using CarRental.Common.Filters;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

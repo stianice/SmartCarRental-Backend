@@ -9,14 +9,7 @@ namespace CarRental.Respository.Models
         {
             builder
                 .ToTable("t_user", tb => tb.HasComment("用户表"))
-                .HasCharSet("utf8mb4")
-                .UseCollation("utf8mb4_general_ci")
-                .HasKey(x => x.UserId)
-                .HasName("PRIMARY");
-
-            builder.Property(x => x.Fname).HasMaxLength(15).HasColumnName("fname");
-
-            builder.Property(x => x.Lname).HasMaxLength(15).HasColumnName("lname");
+                .UseCollation("utf8mb4_general_ci");
 
             builder.Property(x => x.Password).HasMaxLength(150).HasColumnName("password");
 
@@ -24,9 +17,8 @@ namespace CarRental.Respository.Models
 
             builder.Property(x => x.PhoneNumber).HasMaxLength(13).HasColumnName("phonenumber");
 
-            builder.Property(x => x.Balance).HasColumnName("balance");
-
             builder.HasMany(x => x.Bookings).WithOne(x => x.User).IsRequired();
+            builder.HasQueryFilter(x => x.IsDelted == false);
         }
     }
 }

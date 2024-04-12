@@ -1,8 +1,7 @@
-﻿namespace CarRental.Respository.Models
+﻿namespace CarRental.Services.Models
 {
-    public class User
+    public class UserRegister
     {
-        public long UserId { get; set; }
         public string Email { get; set; } = null!;
 
         public string Name { get; set; } = null!;
@@ -15,8 +14,5 @@
 
         public string PhoneNumber { get; set; } = null!;
         public string Password { get; set; } = null!;
-
-        public List<Booking> Bookings { get; set; } = [];
-        public bool IsDelted { get; set; } = false;
     }
 }

@@ -4,6 +4,7 @@ using CarRental.Common.Authrization;
 using CarRental.Respository.Models;
 using CarRental.Services;
 using CarRental.Services.Models;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.WebApi.Controllers
@@ -55,7 +56,7 @@ namespace CarRental.WebApi.Controllers
                 throw AppResultException.Status404NotFound("用户名或密码错误");
 
             var flag = BCrypt.Net.BCrypt.Verify(loginParams.Password, us.Password);
-
+            Console.WriteLine(BCrypt.Net.BCrypt.HashPassword(loginParams.Password));
             if (!flag)
             {
                 throw AppResultException.Status404NotFound("用户名或密码错误");
@@ -74,9 +75,9 @@ namespace CarRental.WebApi.Controllers
 
         // POST to register a new user
         [HttpPost("users")]
-        public AppResult RegisterUser([FromBody] User post_user)
+        public AppResult RegisterUser(UserRegister post_user)
         {
-            var user = _userService.RegisterUser(post_user);
+            var user = _userService.RegisterUser(post_user.Adapt<User>());
 
             return AppResult.Status200OK("用户创建成功", user);
         }

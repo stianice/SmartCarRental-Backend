@@ -9,7 +9,7 @@ namespace CarRental.WebApi.Controllers
 {
     [Route("api/v1/users")]
     [ApiController]
-    [Authorize(Roles = "user, manager")]
+    //[Authorize(Roles = "user,manager")]
     public class UserController : ControllerBase
     {
         private UserService userService;
@@ -21,7 +21,6 @@ namespace CarRental.WebApi.Controllers
 
         //        // GET all users
         [HttpGet]
-        [Authorize(Roles = "manager")]
         public AppResult GetAllUsers()
         {
             User[] users = userService.GetAllUsers();
@@ -81,6 +80,21 @@ namespace CarRental.WebApi.Controllers
             userService.DeleteUserByEmail(user_email);
 
             return AppResult.Status200OKWithMessage("成功删除该用户");
+        }
+
+        [HttpPatch("deleteUsers")]
+        public AppResult DeleteUserByIds(long[] ids)
+        {
+            var row = userService.DeletebyIds(ids);
+
+            return AppResult.Status200OKWithMessage($"成功删除 {row}个用户");
+        }
+
+        [HttpPost("seachbycondiction")]
+        public AppResult SeachByCondiction(UserCondiction condiction)
+        {
+            var list = userService.GetUsersByCondiction(condiction);
+            return AppResult.Status200OK("查询成功", list);
         }
     }
 }

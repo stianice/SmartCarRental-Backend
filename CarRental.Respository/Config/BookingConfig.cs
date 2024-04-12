@@ -9,20 +9,28 @@ namespace CarRental.Respository.Models
         {
             builder
                 .ToTable("t_booking", tb => tb.HasComment("订单表"))
-                .HasCharSet("utf8mb4")
-                .UseCollation("utf8mb4_general_ci")
-                .HasKey(x => x.BookingId)
-                .HasName("PRIMARY");
+                .UseCollation("utf8mb4_general_ci");
 
             builder.Property(x => x.Status).HasMaxLength(20).HasColumnName("status");
 
-            builder.Property(x => x.Content).HasColumnType("char").HasColumnName("content");
+            builder
+                .Property(x => x.Content)
+                .HasColumnType("char")
+                .HasColumnName("content")
+                .HasMaxLength(20);
+
+            builder
+                .HasOne(x => x.Check)
+                .WithOne(x => x.Booking)
+                .HasForeignKey<Check>(x => x.BokingId);
 
             builder
                 .Property(x => x.BookingReference)
                 .IsRequired()
                 .HasMaxLength(15)
                 .HasColumnName("booking_reference");
+
+            builder.HasQueryFilter(x => x.IsDelted == false);
         }
     }
 }

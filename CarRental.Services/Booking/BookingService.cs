@@ -99,8 +99,10 @@ public class BookingService
             var booking = bookingpms.Adapt<Booking>();
             booking.Car = car;
 
-            _db.Bookings.Add(booking);
+            user.Bookings.Add(booking);
             _db.SaveChanges();
+
+            booking.User.Bookings = [];
 
             return booking;
         }
@@ -112,7 +114,7 @@ public class BookingService
 
     public long RemoveAllBookings()
     {
-        return _db.Bookings.ExecuteDelete();
+        return _db.Bookings.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
     }
 
     public long removeBookingByUserAndRef(string user_email, string booking_reference)
@@ -125,8 +127,8 @@ public class BookingService
                 .Bookings.Where(x => x.BookingReference == booking_reference)
                 .First();
 
-            user.Bookings.Remove(booking);
-            return _db.SaveChanges(true);
+            booking.IsDelted = true;
+            return _db.SaveChanges();
         }
         catch (Exception)
         {

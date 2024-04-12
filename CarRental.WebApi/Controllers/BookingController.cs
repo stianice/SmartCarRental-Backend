@@ -88,10 +88,7 @@ namespace CarRental.WebApi.Controllers
 
         // POST to create a new booking for a specific user
         [HttpPost("users/{user_email}/bookings")]
-        public AppResult CreateBookingForUser(
-            string user_email,
-            [FromBody] PostBookingParams bookingpms
-        )
+        public AppResult CreateBookingForUser(string user_email, PostBookingParams bookingpms)
         {
             var booking = _bokingService.CreateBookingForUser(user_email, bookingpms);
 

@@ -74,14 +74,6 @@ namespace CarRental.Services
                     ? manager.Address
                     : patchManger.Address;
 
-                manager.Fname = patchManger.Fname.IsNullOrEmpty()
-                    ? manager.Fname
-                    : patchManger.Fname;
-
-                manager.Lname = patchManger.Lname.IsNullOrEmpty()
-                    ? manager.Lname
-                    : patchManger.Lname;
-
                 _db.SaveChanges();
 
 #pragma warning restore CS8601 // 引用类型赋值可能为 null。
@@ -96,14 +88,21 @@ namespace CarRental.Services
 
         public long DeleteAllManager()
         {
-            return _db.Managers.ExecuteDelete();
+            return _db.Managers.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
         }
 
         public void DeleteUserByEmail(string email)
         {
-            var row = _db.Managers.Where(x => x.Email == email).ExecuteDelete();
-            if (row < 1)
+            try
+            {
+                var manager = _db.Managers.First(x => x.Email == email);
+                manager.IsDelted = true;
+                _db.SaveChanges();
+            }
+            catch (Exception)
+            {
                 throw AppResultException.Status404NotFound("该管理员不存在");
+            }
         }
 
         public Manager RegisterUser(Manager us)

@@ -22,7 +22,7 @@ namespace CarRental.Respository.Models
 
             builder.Property(x => x.Registration).HasMaxLength(50).HasColumnName("registration");
 
-            builder.HasMany(x => x.Bookings).WithOne(x => x.Car).IsRequired();
+            builder.HasQueryFilter(x => x.IsDelted == false);
         }
     }
 }

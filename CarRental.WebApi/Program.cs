@@ -20,12 +20,20 @@ try
 
     //统一返回设置，异常返回
     builder.Services.AddControllers().AddDataValidation().AddAppResult();
+    //.AddNewtonsoftJson(opt =>
+    //{
+    //    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft
+    //        .Json
+    //        .ReferenceLoopHandling
+    //        .Ignore;
+
+    //    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    //})
 
     var con = Configuration["MySql:ConnectStrings"];
 
     //Respository层
     builder.Services.AddMySql<CarRentalContext>(con, ServerVersion.AutoDetect(con));
-
     //Service层
     builder.Services.AddAutoServices("CarRental.Services");
 

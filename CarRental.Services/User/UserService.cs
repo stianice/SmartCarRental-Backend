@@ -15,7 +15,7 @@ public class UserService(CarRentalContext db)
     {
         try
         {
-            return _db.Users.ToArray();
+            return _db.Users.Take(30).ToArray();
         }
         catch (ArgumentNullException ex)
         {
@@ -62,14 +62,20 @@ public class UserService(CarRentalContext db)
                     : BCrypt.Net.BCrypt.HashPassword(patchUser.Password);
 
             user.Email = patchUser.Email.IsNullOrEmpty() ? user.Email : patchUser.Email;
+            user.Name = patchUser.Name.IsNullOrEmpty() ? user.Name : patchUser.Name;
 
             user.PhoneNumber = patchUser.PhoneNumber.IsNullOrEmpty()
                 ? user.PhoneNumber
                 : patchUser.PhoneNumber;
 
-            user.Fname = patchUser.Fname.IsNullOrEmpty() ? user.Fname : patchUser.Fname;
+            user.City = patchUser.City.IsNullOrEmpty() ? user.City : patchUser.City;
 
-            user.Lname = patchUser.Lname.IsNullOrEmpty() ? user.Lname : patchUser.Lname;
+            user.Identity = patchUser.Identity.IsNullOrEmpty() ? user.Identity : patchUser.Identity;
+
+            if (!patchUser.Sex.IsNullOrEmpty())
+            {
+                user.Sex = patchUser.Sex;
+            }
 
             _db.SaveChanges();
 
@@ -85,14 +91,28 @@ public class UserService(CarRentalContext db)
 
     public long DeleteAllUser()
     {
-        return _db.Users.ExecuteDelete();
+        return _db.Users.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+    }
+
+    public long DeletebyIds(long[] ids)
+    {
+        return _db
+            .Users.Where(x => ids.Contains(x.UserId))
+            .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
     }
 
     public void DeleteUserByEmail(string email)
     {
-        var row = _db.Users.Where(x => x.Email == email).ExecuteDelete();
-        if (row < 1)
+        try
+        {
+            var user = _db.Users.First(x => x.Email == email);
+            user.IsDelted = true;
+            _db.SaveChanges();
+        }
+        catch (Exception)
+        {
             throw AppResultException.Status404NotFound("该用户不存在");
+        }
     }
 
     public User RegisterUser(User us)
@@ -114,6 +134,40 @@ public class UserService(CarRentalContext db)
         catch (Exception)
         {
             throw AppResultException.Status500InternalServerError();
+        }
+    }
+
+    public User[] GetUsersByCondiction(UserCondiction condiction)
+    {
+        try
+        {
+            IQueryable<User> query = _db.Users.AsQueryable();
+            if (!condiction.Name.IsNullOrEmpty())
+            {
+                query = query.Where(x => x.Name == condiction.Name);
+            }
+            if (!condiction.Identity.IsNullOrEmpty())
+            {
+                query = query.Where(x => x.Identity == condiction.Identity);
+            }
+            if (!condiction.Sex.IsNullOrEmpty())
+            {
+                query = query.Where(x => x.Sex.ToString() == condiction.Sex);
+            }
+            if (!condiction.City.IsNullOrEmpty())
+            {
+                query = query.Where(x => x.City == condiction.City);
+            }
+            if (!condiction.Email.IsNullOrEmpty())
+            {
+                query = query.Where(x => x.Email == condiction.Email);
+            }
+
+            return query.ToArray();
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status404NotFound();
         }
     }
 }

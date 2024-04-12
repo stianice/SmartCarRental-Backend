@@ -215,7 +215,9 @@ namespace CarRental.Services
 
         public void DeleteCarByReg(string registration)
         {
-            int row = _db.Cars.Where(x => x.Registration == registration).ExecuteDelete();
+            int row = _db
+                .Cars.Where(x => x.Registration == registration)
+                .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
             if (row < 1)
             {
                 throw AppResultException.Status404NotFound("车辆未找到");
@@ -224,7 +226,7 @@ namespace CarRental.Services
 
         public long DeleteAllCars()
         {
-            long row = _db.Cars.ExecuteDelete();
+            long row = _db.Cars.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
             if (row == 0)
             {
                 throw AppResultException.Status404NotFound("车辆未找到");
@@ -242,7 +244,7 @@ namespace CarRental.Services
 
                 Car car = manager.Cars.First(x => x.Registration == registration);
 
-                _db.Cars.Remove(car);
+                car.IsDelted = true;
                 _db.SaveChanges();
             }
             catch (Exception)
