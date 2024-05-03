@@ -1,6 +1,7 @@
 ﻿using CarRental.Common;
 using CarRental.Respository;
 using CarRental.Respository.Models;
+using CarRental.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -203,7 +204,37 @@ namespace CarRental.Services
             {
                 Car car = _db.Cars.Single(x => x.Registration == registration);
 
-                car = up_car;
+                if (!up_car.Brand.IsNullOrEmpty())
+                {
+                    car.Brand = up_car.Brand;
+                }
+                if (!up_car.Color.IsNullOrEmpty())
+                {
+                    car.Color = up_car.Color;
+                }
+                if (!up_car.CarType.IsNullOrEmpty())
+                {
+                    car.CarType = up_car.CarType;
+                }
+                if (!up_car.Description.IsNullOrEmpty())
+                {
+                    car.Description = up_car.Description;
+                }
+
+                if (!up_car.Image.IsNullOrEmpty())
+                {
+                    car.Image = up_car.Image;
+                }
+                if (!up_car.Registration.IsNullOrEmpty())
+                {
+                    car.Registration = up_car.Registration;
+                }
+                if (up_car.Status != null)
+                {
+                    car.Status = up_car.Status;
+                }
+                car.Price = up_car.Price;
+
                 _db.SaveChanges();
                 return car;
             }
@@ -250,6 +281,58 @@ namespace CarRental.Services
             catch (Exception)
             {
                 throw AppResultException.Status409Conflict("删除失败");
+            }
+        }
+
+        public Car[] GetCarByCondiction(CarSearchReq condiction)
+        {
+            try
+            {
+                var query = _db.Cars.AsQueryable();
+                if (!condiction.Brand.IsNullOrEmpty())
+                {
+                    query = query.Where(x => x.Brand == condiction.Brand);
+                }
+                if (!condiction.CarType.IsNullOrEmpty())
+                {
+                    query = query.Where(x => x.CarType == condiction.CarType);
+                }
+                if (condiction.Status != null)
+                {
+                    query = query.Where(x => x.Status == condiction.Status);
+                }
+                if (!condiction.Description.IsNullOrEmpty())
+                {
+                    query = query.Where(x => x.Description == condiction.Description);
+                }
+                if (!condiction.Color.IsNullOrEmpty())
+                {
+                    query = query.Where(x => x.Color == condiction.Color);
+                }
+                if (!condiction.Registration.IsNullOrEmpty())
+                {
+                    query = query.Where(x => x.Registration == condiction.Registration);
+                }
+
+                return query.ToArray();
+            }
+            catch (Exception)
+            {
+                throw AppResultException.Status404NotFound();
+            }
+        }
+
+        public long DeletebyIds(long[] ids)
+        {
+            try
+            {
+                return _db
+                    .Cars.Where(x => ids.Contains(x.CarId))
+                    .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+            }
+            catch (Exception)
+            {
+                throw AppResultException.Status500InternalServerError();
             }
         }
     }

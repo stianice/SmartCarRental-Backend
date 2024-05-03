@@ -17,6 +17,8 @@ namespace CarRental.Respository.Config
                 .HasMany(x => x.Roles)
                 .WithMany(x => x.Menus)
                 .UsingEntity(x => x.ToTable("t_menu_role"));
+
+            builder.Property(x => x.IconPath).HasMaxLength(20).HasComment("菜单图标");
         }
     }
 }

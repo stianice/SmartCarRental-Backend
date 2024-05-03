@@ -1,6 +1,6 @@
 ﻿namespace CarRental.Services.Models
 {
-    public class PostCarParams
+    public class PostCarReq
     {
         public string Registration { get; set; } = null!;
 
@@ -12,5 +12,8 @@
 
         public string Description { get; set; } = null!;
         public string Brand { get; set; } = null!;
+
+        public string Status { get; set; } = null!;
+        public string CarType { get; set; } = null!;
     }
 }

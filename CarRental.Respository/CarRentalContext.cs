@@ -12,6 +12,7 @@ namespace CarRental.Respository
         public DbSet<Check> Checks { get; set; }
 
         public DbSet<Car> Cars { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         public DbSet<Booking> Bookings { get; set; }
 

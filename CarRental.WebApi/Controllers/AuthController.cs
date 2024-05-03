@@ -23,7 +23,7 @@ namespace CarRental.WebApi.Controllers
         }
 
         [HttpPost("managers/login")]
-        public AppResult AuthenticateManager(ManagerLoginParams loginParams)
+        public AppResult AuthenticateManager(ManagerLoginReq loginParams)
         {
             var man = _managerService.GetManagerByEmail(loginParams.Email);
 
@@ -37,7 +37,8 @@ namespace CarRental.WebApi.Controllers
             Claim[] identity =
             [
                 new Claim(ClaimTypes.Role, "manager"),
-                new Claim("managerEmail", man.Email)
+                new Claim("managerEmail", man.Email),
+                new Claim("name", man.Name!)
             ];
 
             string v = JwtHelper.CreateToken(identity);
@@ -66,6 +67,7 @@ namespace CarRental.WebApi.Controllers
             [
                 new Claim(ClaimTypes.Role, "user"),
                 new Claim("userEmail", us.Email),
+                new Claim("name", us.Name)
             ];
 
             string token = JwtHelper.CreateToken(identity);
@@ -75,7 +77,7 @@ namespace CarRental.WebApi.Controllers
 
         // POST to register a new user
         [HttpPost("users")]
-        public AppResult RegisterUser(UserRegister post_user)
+        public AppResult RegisterUser(PostUserReq post_user)
         {
             var user = _userService.RegisterUser(post_user.Adapt<User>());
 

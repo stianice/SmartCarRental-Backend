@@ -2,7 +2,7 @@
 
 namespace CarRental.Services.Models
 {
-    public class PatchManager
+    public class PatchManagerReq
     {
         [Required]
         public string? Email { get; set; }

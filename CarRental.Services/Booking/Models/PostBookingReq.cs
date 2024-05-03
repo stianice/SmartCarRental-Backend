@@ -1,6 +1,6 @@
 ﻿namespace CarRental.Services.Models
 {
-    public class PostBookingParams
+    public class PostBookingReq
     {
         public string? BookingReference { get; set; }
 

@@ -17,11 +17,30 @@ public class BookingService
         _db = db;
     }
 
-    public Booking[] GetAllBookings()
+    public BookingRsp[] GetAllBookings()
     {
         try
         {
-            return _db.Bookings.ToArray();
+            var bookingResp = _db
+                .Bookings.Include(x => x.Car)
+                .Include(x => x.User)
+                .Select(x => new BookingRsp()
+                {
+                    BookingId = x.BookingId,
+                    BookingReference = x.BookingReference,
+                    Registration = x.Car.Registration,
+                    Identity = x.User.Identity,
+                    Content = x.Content,
+                    Status = (byte)x.Status!,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    Price = x.Price,
+                    CreateDate = x.CreateDate,
+                    CustomerName = x.User.Name,
+                })
+                .ToArray();
+
+            return bookingResp;
         }
         catch (Exception)
         {
@@ -33,7 +52,10 @@ public class BookingService
     {
         try
         {
-            return _db.Bookings.First(x => x.BookingReference == bookingReference);
+            return _db
+                .Bookings.Include(x => x.User)
+                .Include(x => x.Car)
+                .First(x => x.BookingReference == bookingReference);
         }
         catch (Exception)
         {
@@ -72,7 +94,7 @@ public class BookingService
         }
     }
 
-    public Booking CreateBookingForUser(string user_email, PostBookingParams bookingpms)
+    public Booking CreateBookingForUser(string user_email, PostBookingReq bookingpms)
     {
         try
         {
@@ -99,10 +121,14 @@ public class BookingService
             var booking = bookingpms.Adapt<Booking>();
             booking.Car = car;
 
-            user.Bookings.Add(booking);
-            _db.SaveChanges();
+            TimeSpan timeSpan = (TimeSpan)(booking.EndDate - booking.StartDate)!;
 
-            booking.User.Bookings = [];
+            booking.Price = (float)(timeSpan.TotalDays * car.Price);
+
+            user.Bookings.Add(booking);
+            _db.Add(booking);
+
+            _db.SaveChanges();
 
             return booking;
         }
@@ -133,6 +159,125 @@ public class BookingService
         catch (Exception)
         {
             throw AppResultException.Status404NotFound("该用户不存在该订单");
+        }
+    }
+
+    public void PatchUpdate(Booking booking)
+    {
+        try
+        {
+            Booking bk = _db.Bookings.First(x => x.BookingId == booking.BookingId);
+
+            if (booking.Status != null)
+            {
+                bk.Status = booking.Status;
+            }
+            if (!booking.Content.IsNullOrEmpty())
+            {
+                bk.Content = booking.Content;
+            }
+
+            bk.EndDate = booking.EndDate;
+
+            bk.StartDate = booking.StartDate;
+
+            bk.Price = booking.Price;
+            _db.SaveChanges();
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status500InternalServerError();
+        }
+    }
+
+    public long DeleteByIds(long[] ids)
+    {
+        try
+        {
+            return _db
+                .Bookings.Where(x => ids.Contains(x.BookingId))
+                .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status500InternalServerError();
+        }
+    }
+
+    public List<BookingRsp> GetBookingsByCondition(BookingSearchReq req)
+    {
+        IQueryable<Booking> query = _db
+            .Bookings.Include(x => x.Car)
+            .Include(x => x.User)
+            .AsQueryable();
+
+        if (!req.Registration.IsNullOrEmpty())
+        {
+            query = query.Where(x => x.Car.Registration == req.Registration);
+        }
+        if (!req.BookingReference.IsNullOrEmpty())
+        {
+            query = query.Where(x => x.BookingReference == req.BookingReference);
+        }
+        if (!req.Identity.IsNullOrEmpty())
+        {
+            query = query.Where(x => x.User.Identity == req.Identity);
+        }
+        if (req.StartDate != null)
+        {
+            query = query.Where(x => x.StartDate >= req.StartDate);
+        }
+        if (req.EndDate != null)
+        {
+            query = query.Where(x => x.EndDate <= req.EndDate);
+        }
+
+        try
+        {
+            return query
+                .Select(x => new BookingRsp()
+                {
+                    BookingId = x.BookingId,
+                    BookingReference = x.BookingReference,
+                    Registration = x.Car.Registration,
+                    Identity = x.User.Identity,
+                    Content = x.Content,
+                    Status = (byte)x.Status!,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    CreateDate = x.CreateDate,
+                    CustomerName = x.User.Name,
+                })
+                .ToList();
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status500InternalServerError();
+        }
+    }
+
+    public void RentalCar(UpBookingStatusReq status)
+    {
+        try
+        {
+            Car car = _db.Cars.First(x => x.Registration == status.Registration);
+            Booking booking = _db.Bookings.First(x =>
+                x.BookingReference == status.BookingReference
+            );
+            if (status.CarStatus != null)
+            {
+                car.Status = status.CarStatus;
+            }
+            if (status.BookingStatus != null)
+            {
+                booking.Status = status.BookingStatus;
+            }
+
+            _db.SaveChanges();
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status404NotFound("更新失败，不存在该订单或车辆");
         }
     }
 }

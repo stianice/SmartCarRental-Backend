@@ -8,11 +8,12 @@ namespace CarRental.Respository.Models
 
         [NotMapped]
         public List<Menu> Children { get; set; } = new();
-        public byte Availble { get; set; }
+        public short Available { get; set; }
 
         public long ParentId { get; set; }
         public string? Path { get; set; }
         public List<Role> Roles { get; set; } = new();
         public string Title { get; set; } = null!;
+        public string IconPath { get; set; } = null!;
     }
 }

@@ -8,11 +8,6 @@
 
         public string Position { get; set; } = null!;
 
-        //public string? Fname { get; set; }
-
-        //public string? Lname { get; set; }
-
-        //public float? Balance { get; set; }
         public string? Password { get; set; } = null!;
 
         public string? Address { get; set; }
@@ -22,6 +17,7 @@
         public List<Role> Roles { get; set; } = [];
 
         public byte Availble { get; set; }
+        public DateTime CreateDate { get; set; } = DateTime.Now;
         public bool IsDelted { get; set; }
     }
 }

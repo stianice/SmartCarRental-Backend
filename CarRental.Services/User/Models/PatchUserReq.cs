@@ -2,7 +2,7 @@
 
 namespace CarRental.Services.Models
 {
-    public class PatchUser
+    public class PatchUserReq
     {
         public long UserId { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace CarRental.Services.Models
 {
-    public class UserRegister
+    public class PostUserReq
     {
         public string Email { get; set; } = null!;
 

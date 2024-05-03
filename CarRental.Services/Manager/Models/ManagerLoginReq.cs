@@ -1,6 +1,6 @@
 ﻿namespace CarRental.Services.Models
 {
-    public class ManagerLoginParams
+    public class ManagerLoginReq
     {
         public string Email { get; set; } = null!;
 

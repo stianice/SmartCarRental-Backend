@@ -52,7 +52,7 @@ namespace CarRental.Services
             }
         }
 
-        public Manager PartialUpdate(string email, PatchManager patchManger)
+        public Manager PartialUpdate(string email, PatchManagerReq patchManger)
         {
             try
             {

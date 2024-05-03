@@ -46,7 +46,7 @@ namespace CarRental.WebApi.Controllers
         }
 
         [HttpPatch("{user_email}")]
-        public AppResult PatchUserByEmail(PatchUser patchUser, string user_email)
+        public AppResult PatchUserByEmail(PatchUserReq patchUser, string user_email)
         {
             User user = userService.PartialUpdate(user_email, patchUser);
 
@@ -91,10 +91,31 @@ namespace CarRental.WebApi.Controllers
         }
 
         [HttpPost("seachbycondiction")]
-        public AppResult SeachByCondiction(UserCondiction condiction)
+        public AppResult SeachByCondiction(UserSearchReq condiction)
         {
             var list = userService.GetUsersByCondiction(condiction);
             return AppResult.Status200OK("查询成功", list);
+        }
+
+        [HttpGet("cities")]
+        public AppResult GetCities()
+        {
+            var list = userService.GetCities();
+            return AppResult.Status200OKWithData(list);
+        }
+
+        [HttpGet("citiesName")]
+        public AppResult GetCitiesName()
+        {
+            var list = userService.GetCityNames();
+            return AppResult.Status200OKWithData(list);
+        }
+
+        [HttpGet("sexCity/{city_name}")]
+        public AppResult GetSexCity(string city_name)
+        {
+            var list = userService.GetSexes(city_name);
+            return AppResult.Status200OKWithData(list);
         }
     }
 }

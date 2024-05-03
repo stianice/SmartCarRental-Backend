@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarRental.Respository.Migrations
 {
     [DbContext(typeof(CarRentalContext))]
-    [Migration("20240412042143_x1")]
-    partial class x1
+    [Migration("20240425074449_x6")]
+    partial class x6
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,10 +47,16 @@ namespace CarRental.Respository.Migrations
                         .HasColumnType("char")
                         .HasColumnName("content");
 
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("IsDelted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsReturn")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<float>("Price")
@@ -59,11 +65,8 @@ namespace CarRental.Respository.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("status");
+                    b.Property<byte?>("Status")
+                        .HasColumnType("tinyint unsigned");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -106,6 +109,9 @@ namespace CarRental.Respository.Migrations
                         .HasColumnType("varchar(10)")
                         .HasColumnName("color");
 
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -133,7 +139,7 @@ namespace CarRental.Respository.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("registration");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte?>("Status")
                         .HasColumnType("tinyint unsigned");
 
                     b.HasKey("CarId")
@@ -155,22 +161,25 @@ namespace CarRental.Respository.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("CheckId"));
 
-                    b.Property<long>("BokingId")
+                    b.Property<long>("BookingId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("CheckDesc")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("CheckReference")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("CheckTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("IsDelted")
                         .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("OpName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<float>("PayMoney")
                         .HasColumnType("float");
@@ -181,7 +190,7 @@ namespace CarRental.Respository.Migrations
 
                     b.HasKey("CheckId");
 
-                    b.HasIndex("BokingId")
+                    b.HasIndex("BookingId")
                         .IsUnique();
 
                     b.ToTable("t_check", null, t =>
@@ -234,8 +243,11 @@ namespace CarRental.Respository.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("longtext");
 
-                    b.Property<byte>("Availble")
+                    b.Property<byte>("Available")
                         .HasColumnType("tinyint unsigned");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -277,8 +289,14 @@ namespace CarRental.Respository.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("MenuId"));
 
-                    b.Property<byte>("Availble")
+                    b.Property<byte>("Available")
                         .HasColumnType("tinyint unsigned");
+
+                    b.Property<string>("IconPath")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasComment("菜单图标");
 
                     b.Property<long>("ParentId")
                         .HasColumnType("bigint");
@@ -308,11 +326,12 @@ namespace CarRental.Respository.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("RoleId"));
 
-                    b.Property<byte>("Availble")
+                    b.Property<byte>("Available")
                         .HasColumnType("tinyint unsigned");
 
-                    b.Property<byte>("Avalible")
-                        .HasColumnType("tinyint unsigned");
+                    b.Property<string>("Remarks")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("RoleName")
                         .IsRequired()
@@ -339,6 +358,9 @@ namespace CarRental.Respository.Migrations
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -371,7 +393,7 @@ namespace CarRental.Respository.Migrations
 
                     b.Property<string>("Sex")
                         .IsRequired()
-                        .HasColumnType("varchar(1)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("UserId");
 
@@ -447,7 +469,7 @@ namespace CarRental.Respository.Migrations
                 {
                     b.HasOne("CarRental.Respository.Models.Booking", "Booking")
                         .WithOne("Check")
-                        .HasForeignKey("CarRental.Respository.Models.Check", "BokingId")
+                        .HasForeignKey("CarRental.Respository.Models.Check", "BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

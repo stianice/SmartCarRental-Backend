@@ -1,6 +1,6 @@
 ﻿namespace CarRental.Services.Models
 {
-    public class UserCondiction
+    public class UserSearchReq
     {
         public string? Email { get; set; }
         public string? Name { get; set; }

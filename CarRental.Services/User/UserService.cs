@@ -47,7 +47,7 @@ public class UserService(CarRentalContext db)
         }
     }
 
-    public User PartialUpdate(string email, PatchUser patchUser)
+    public User PartialUpdate(string email, PatchUserReq patchUser)
     {
         try
         {
@@ -137,7 +137,7 @@ public class UserService(CarRentalContext db)
         }
     }
 
-    public User[] GetUsersByCondiction(UserCondiction condiction)
+    public User[] GetUsersByCondiction(UserSearchReq condiction)
     {
         try
         {
@@ -164,6 +164,53 @@ public class UserService(CarRentalContext db)
             }
 
             return query.ToArray();
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status404NotFound();
+        }
+    }
+
+    public object GetCities()
+    {
+        try
+        {
+            var cities = db
+                .Users.GroupBy(u => u.City)
+                .Select(g => new { Name = g.Key, Value = g.Count() })
+                .ToList();
+
+            return cities;
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status404NotFound();
+        }
+    }
+
+    public List<string> GetCityNames()
+    {
+        try
+        {
+            var cities = _db.Users.Select(x => x.City).Distinct().ToList();
+            return cities;
+        }
+        catch (Exception)
+        {
+            throw AppResultException.Status404NotFound();
+        }
+    }
+
+    public object GetSexes(string name)
+    {
+        try
+        {
+            var sexes = _db
+                .Users.Where(x => x.City == name)
+                .GroupBy(u => u.Sex)
+                .Select(g => new { Name = g.Key, Value = g.Count() })
+                .ToList();
+            return sexes;
         }
         catch (Exception)
         {

@@ -19,12 +19,12 @@ namespace CarRental.WebApi.Controllers
         }
 
         // GET all bookings
-        [HttpGet]
+        [HttpGet("bookings")]
         public AppResult GetAllBookings()
         {
-            Booking[] bookings = _bokingService.GetAllBookings();
+            var bookingsRep = _bokingService.GetAllBookings();
 
-            return AppResult.Status200OKWithData(bookings);
+            return AppResult.Status200OKWithData(bookingsRep);
         }
 
         // GET a specific booking by bookingReference
@@ -33,23 +33,7 @@ namespace CarRental.WebApi.Controllers
         {
             Booking booking = _bokingService.GetBookingByRef(booking_reference);
 
-            var bookingLiks = new
-            {
-                booking,
-                links = new
-                {
-                    self = new
-                    {
-                        href = $"http://localhost:3000/api/v1/bookings/{booking_reference}"
-                    },
-                    car = new
-                    {
-                        href = $"http://localhost:3000/api/v1/bookings/{booking_reference}/car"
-                    }
-                }
-            };
-
-            return AppResult.Status200OKWithData(bookingLiks);
+            return AppResult.Status200OKWithData(booking);
         }
 
         // GET all bookings of a user by user email
@@ -74,7 +58,7 @@ namespace CarRental.WebApi.Controllers
                 {
                     self = new
                     {
-                        href = "$http://localhost:3000/api/v1/users/{userEmail}/bookings/{bookingReference}"
+                        href = $"http://localhost:3000/api/v1/users/{user_email}/bookings/{booking_reference}"
                     },
                     car = new
                     {
@@ -88,7 +72,7 @@ namespace CarRental.WebApi.Controllers
 
         // POST to create a new booking for a specific user
         [HttpPost("users/{user_email}/bookings")]
-        public AppResult CreateBookingForUser(string user_email, PostBookingParams bookingpms)
+        public AppResult CreateBookingForUser(string user_email, PostBookingReq bookingpms)
         {
             var booking = _bokingService.CreateBookingForUser(user_email, bookingpms);
 
@@ -107,10 +91,41 @@ namespace CarRental.WebApi.Controllers
         // DELETE to remove booking by user and bookingReference
 
         [HttpDelete("users/{user_email}/bookings/{booking_reference}")]
-        public AppResult removeBookingByUserAndRef(string user_email, string booking_reference)
+        public AppResult Delete(string user_email, string booking_reference)
         {
             _bokingService.removeBookingByUserAndRef(user_email, booking_reference);
             return AppResult.Status200OKWithMessage("成功移除该订单");
+        }
+
+        [HttpPatch("bookings/{id}")]
+        public AppResult Update(long id, Booking booking)
+        {
+            booking.BookingId = id;
+            _bokingService.PatchUpdate(booking);
+
+            return AppResult.Status200OKWithMessage("更新订单成功");
+        }
+
+        [HttpPatch("bookings/deletebyids")]
+        public AppResult DeleteByIds(long[] ids)
+        {
+            long row = _bokingService.DeleteByIds(ids);
+            return AppResult.Status200OKWithMessage($"成功删除 {row} 行数据");
+        }
+
+        [HttpPatch("bookings/up_status")]
+        public AppResult UpStatus(UpBookingStatusReq status)
+        {
+            _bokingService.RentalCar(status);
+            return AppResult.Status200OKWithMessage("出租成功");
+        }
+
+        [HttpPost("bookings/search")]
+        public AppResult GetBookingsByCondiction(BookingSearchReq req)
+        {
+            var list = _bokingService.GetBookingsByCondition(req);
+
+            return AppResult.Status200OKWithData(list);
         }
     }
 }

@@ -1,6 +1,7 @@
 using CarRental.Common;
 using CarRental.Respository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using NLog;
 using NLog.Web;
@@ -66,6 +67,16 @@ try
     }
 
     app.UseCors();
+
+    app.UseStaticFiles(
+        new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(
+                Path.Combine(builder.Environment.ContentRootPath, "staticfiles")
+            ),
+            RequestPath = "/staticfiles"
+        }
+    );
 
     app.UseAuthentication();
     app.UseAuthorization();

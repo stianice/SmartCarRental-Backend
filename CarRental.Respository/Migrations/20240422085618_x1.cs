@@ -53,6 +53,7 @@ namespace CarRental.Respository.Migrations
                     Address = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb4_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Availble = table.Column<byte>(type: "tinyint unsigned", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -117,12 +118,13 @@ namespace CarRental.Respository.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     City = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Sex = table.Column<string>(type: "varchar(1)", nullable: false, collation: "utf8mb4_general_ci")
+                    Sex = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     phonenumber = table.Column<string>(type: "varchar(13)", maxLength: 13, nullable: false, collation: "utf8mb4_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     password = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false, collation: "utf8mb4_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -153,8 +155,10 @@ namespace CarRental.Respository.Migrations
                     brand = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ManagerId = table.Column<long>(type: "bigint", nullable: false),
-                    Status = table.Column<byte>(type: "tinyint unsigned", nullable: false),
-                    IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    Status = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -236,7 +240,9 @@ namespace CarRental.Respository.Migrations
                     Price = table.Column<float>(type: "float", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsReturn = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -264,23 +270,24 @@ namespace CarRental.Respository.Migrations
                 {
                     CheckId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BookingId = table.Column<long>(type: "bigint", nullable: false),
+                    CheckReference = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_general_ci")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     CheckTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CheckDesc = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    BokingId = table.Column<long>(type: "bigint", nullable: false),
                     PayMoney = table.Column<float>(type: "float", nullable: false),
-                    OpName = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_general_ci")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
                     Problem = table.Column<string>(type: "longtext", nullable: false, collation: "utf8mb4_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    IsDelted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_t_check", x => x.CheckId);
                     table.ForeignKey(
-                        name: "FK_t_check_t_booking_BokingId",
-                        column: x => x.BokingId,
+                        name: "FK_t_check_t_booking_BookingId",
+                        column: x => x.BookingId,
                         principalTable: "t_booking",
                         principalColumn: "BookingId",
                         onDelete: ReferentialAction.Cascade);
@@ -305,9 +312,9 @@ namespace CarRental.Respository.Migrations
                 column: "ManagerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_t_check_BokingId",
+                name: "IX_t_check_BookingId",
                 table: "t_check",
-                column: "BokingId",
+                column: "BookingId",
                 unique: true);
 
             migrationBuilder.CreateIndex(

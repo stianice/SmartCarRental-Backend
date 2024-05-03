@@ -11,6 +11,7 @@ namespace CarRental.Respository.Config
             builder
                 .ToTable("t_check", tb => tb.HasComment("检查单"))
                 .UseCollation("utf8mb4_general_ci");
+
             builder.HasQueryFilter(x => x.IsDelted == false);
         }
     }

@@ -11,7 +11,7 @@ namespace CarRental.Respository.Models
                 .ToTable("t_booking", tb => tb.HasComment("订单表"))
                 .UseCollation("utf8mb4_general_ci");
 
-            builder.Property(x => x.Status).HasMaxLength(20).HasColumnName("status");
+            //builder.Property(x => x.Status).HasMaxLength(20).HasColumnName("status");
 
             builder
                 .Property(x => x.Content)
@@ -22,7 +22,7 @@ namespace CarRental.Respository.Models
             builder
                 .HasOne(x => x.Check)
                 .WithOne(x => x.Booking)
-                .HasForeignKey<Check>(x => x.BokingId);
+                .HasForeignKey<Check>(x => x.BookingId);
 
             builder
                 .Property(x => x.BookingReference)

@@ -7,10 +7,10 @@
         public string RoleName { get; set; } = null!;
 
         public List<Manager> Managers { get; set; } = new();
-        public byte Avalible { get; set; }
+        public short Available { get; set; }
 
         public List<Menu> Menus { get; set; } = [];
 
-        public byte Availble { get; set; }
+        public string Remarks { get; set; } = string.Empty;
     }
 }

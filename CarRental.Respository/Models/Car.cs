@@ -19,7 +19,8 @@
 
         public Manager? Manager { get; set; }
 
-        public byte Status { get; set; }
-        public bool IsDelted { get; set; }
+        public byte? Status { get; set; }
+        public bool IsDelted { get; set; } = false;
+        public DateTime CreateDate { get; set; } = DateTime.Now;
     }
 }

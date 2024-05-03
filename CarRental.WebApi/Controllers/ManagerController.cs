@@ -1,6 +1,6 @@
-﻿using CarRental.Respository;
+﻿using CarRental.Common;
+using CarRental.Respository;
 using CarRental.Respository.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +8,6 @@ namespace CarRental.WebApi.Controllers
 {
     [Route("api/V1/managers")]
     [ApiController]
-    [Authorize(Roles = "manager")]
     public class ManagerController : ControllerBase
     {
         private readonly CarRentalContext _dbContext;
@@ -21,20 +20,17 @@ namespace CarRental.WebApi.Controllers
         //// GET all managers
         //router.get('/api/v1/managers', ManagerController.getAllManagers);
         [HttpGet]
-        public ActionResult GetAllManagers()
+        public AppResult GetAllManagers()
         {
             try
             {
                 Manager[] manAgeArs = _dbContext.Managers.ToArray();
 
-                return Ok(manAgeArs);
+                return AppResult.Status200OKWithData(manAgeArs);
             }
-            catch (ArgumentNullException ex)
+            catch (ArgumentNullException)
             {
-                Console.WriteLine(ex.Message);
-                ObjectResult rs = new ObjectResult(new { Error = "error" });
-                rs.StatusCode = 500;
-                return rs;
+                throw AppResultException.Status500InternalServerError();
             }
         }
 

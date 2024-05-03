@@ -17,6 +17,7 @@
         public string Password { get; set; } = null!;
 
         public List<Booking> Bookings { get; set; } = [];
+        public DateTime CreateDate { get; set; } = DateTime.Now;
         public bool IsDelted { get; set; } = false;
     }
 }
