@@ -7,10 +7,14 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace CarRental.Services;
 
-public class UserService(CarRentalContext db)
+public class UserService
 {
-    private readonly CarRentalContext _db = db;
+    private readonly CarRentalContext _db;
 
+    public UserService(CarRentalContext db)
+    {
+        _db = db;
+    }
     public User[] GetAllUsers()
     {
         try
@@ -175,7 +179,7 @@ public class UserService(CarRentalContext db)
     {
         try
         {
-            var cities = db
+            var cities = _db
                 .Users.GroupBy(u => u.City)
                 .Select(g => new { Name = g.Key, Value = g.Count() })
                 .ToList();

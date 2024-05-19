@@ -32,6 +32,13 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(_carService.GetAllCar());
         }
 
+        [HttpGet("cars/GetCarsOfNum/{num}")]
+        public AppResult GetCarsOfNum(int num)
+        {
+            List<Car> cars = _carService.GetCarsOfNum(num);
+            return AppResult.Status200OKWithData(cars);
+        }
+
         [HttpGet("cars/{registration}")]
         public AppResult GetCarByReg(string registration)
         {

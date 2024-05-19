@@ -335,5 +335,17 @@ namespace CarRental.Services
                 throw AppResultException.Status500InternalServerError();
             }
         }
+
+        public List<Car> GetCarsOfNum(int num)
+        {
+            try
+            {
+                return [.. _db.Cars.OrderBy(x =>  EF.Functions.Random()).Take(num)];
+            }
+            catch (Exception)
+            {
+                throw AppResultException.Status404NotFound();
+            }
+        }
     }
 }
