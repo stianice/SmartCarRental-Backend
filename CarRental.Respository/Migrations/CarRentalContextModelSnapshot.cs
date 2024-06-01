@@ -342,6 +342,10 @@ namespace CarRental.Respository.Migrations
                         .HasColumnName("icon_path")
                         .HasComment("菜单图标");
 
+                    b.Property<byte>("IsDeleted")
+                        .HasColumnType("tinyint unsigned")
+                        .HasColumnName("is_deleted");
+
                     b.Property<byte>("Level")
                         .HasColumnType("tinyint unsigned")
                         .HasColumnName("level");
@@ -385,6 +389,10 @@ namespace CarRental.Respository.Migrations
                     b.Property<byte>("Available")
                         .HasColumnType("tinyint unsigned")
                         .HasColumnName("available");
+
+                    b.Property<byte>("Deleted")
+                        .HasColumnType("tinyint unsigned")
+                        .HasColumnName("deleted");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
@@ -539,7 +547,7 @@ namespace CarRental.Respository.Migrations
                         .HasForeignKey("ManagerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_t_car_managers_manager_id");
+                        .HasConstraintName("fk_t_car_t_manager_manager_id");
 
                     b.Navigation("Manager");
                 });
@@ -558,12 +566,10 @@ namespace CarRental.Respository.Migrations
 
             modelBuilder.Entity("CarRental.Repository.Entity.Menu", b =>
                 {
-                    b.HasOne("CarRental.Repository.Entity.Menu", "Parent")
+                    b.HasOne("CarRental.Repository.Entity.Menu", null)
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
                         .HasConstraintName("fk_t_menu_t_menu_parent_id");
-
-                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("ManagerRole", b =>

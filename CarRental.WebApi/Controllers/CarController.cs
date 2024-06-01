@@ -1,6 +1,8 @@
 ﻿using CarRental.Common;
 using CarRental.Repository.Entity;
 using CarRental.Services;
+using CarRental.Services.DTO;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,27 +19,20 @@ namespace CarRental.WebApi.Controllers
             _carService = carService;
         }
 
-        //[Authorize(Roles = "manager")]
-        //[HttpPost("managers/{manager_email}/cars")]
-        //public AppResult CreateCarByManagerEmail(Car postCar, string manager_email)
-        //{
-        //    var car = _carService.CreateCarByManagerEmail(postCar, manager_email);
-
-        //    return AppResult.Status200OKWithData(car);
-        //}
-
-        //// Return a list of all cars
-        [HttpGet("cars")]
-        public AppResult GetAllCars()
+        [Authorize(Roles = "manager")]
+        [HttpPost("managers/{manager_email}/cars")]
+        public AppResult CreateCarByManagerEmail(PostCarReq postCar, string manager_email)
         {
-            return AppResult.Status200OKWithData(_carService.GetAllCar());
+            var car = _carService.CreateCarByManagerEmail(postCar.Adapt<Car>(), manager_email);
+
+            return AppResult.Status200OKWithData(car);
         }
 
-        [HttpGet("cars/GetCarsOfNum/{num}")]
-        public AppResult GetCarsOfNum(int num)
+        //// Return cars
+        [HttpGet("cars")]
+        public AppResult GetAllCars([FromQuery] CarQueryParameters? parameters)
         {
-            List<Car> cars = _carService.GetCarsOfNum(num);
-            return AppResult.Status200OKWithData(cars);
+            return AppResult.Status200OKWithData(_carService.GetAllCar(parameters));
         }
 
         [HttpGet("cars/{registration}")]
@@ -53,30 +48,6 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(carLinks);
         }
 
-        [HttpGet("cars/price/{sort}")]
-        public AppResult GetCarsByPriceSort(string sort)
-        {
-            return AppResult.Status200OKWithData(_carService.GetCarsByPriceSort(sort));
-        }
-
-        [HttpGet("cars/color/{color}")]
-        public AppResult GetCarsByColor(string color)
-        {
-            return AppResult.Status200OKWithData(_carService.GetCarsByColor(color));
-        }
-
-        [HttpGet("cars/brand/{brand}")]
-        public AppResult GetCarsByBrand(string brand)
-        {
-            return AppResult.Status200OKWithData(_carService.GetCarsByBrand(brand));
-        }
-
-        [HttpGet("cars/color&brand/{color}/{brand}")]
-        public AppResult GetCarsByColorAndBrand(string color, string brand)
-        {
-            return AppResult.Status200OKWithData(_carService.GetCarsByColorAndBrand(color, brand));
-        }
-
         [HttpGet("managers/{manager_email}/cars")]
         public AppResult GetCarsByManagerEmail(string manager_email)
         {
@@ -85,19 +56,14 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(cars);
         }
 
-        [HttpGet("managers/{manager_email}/cars/{registration}")]
-        public AppResult GetCarByManagerEmailAndReg(string manager_email, string registration)
-        {
-            var car = _carService.GetCarByManagerEmailAndReg(manager_email, registration);
-            return AppResult.Status200OKWithData(car);
-        }
-
+        //获取特定订单的车辆信息
         [HttpGet("bookings/{booking_reference}/car")]
         public AppResult GetCarByBookingRef(string booking_reference)
         {
             return AppResult.Status200OKWithData(_carService.GetCarByBookingRef(booking_reference));
         }
 
+        //获取特定用户下的特定订单的车辆信息
         [HttpGet("users/{user_email}/bookings/{booking_reference}/car")]
         public AppResult GetCarByBookingAndUser(string user_email, string booking_reference)
         {
@@ -105,8 +71,9 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(car);
         }
 
+        //车辆
         [HttpPut("cars/{registration}")]
-        public AppResult UpdateCarByReg(string registration, [FromBody] Car up_car)
+        public AppResult UpdateCarByReg(string registration, Car up_car)
         {
             Car car = _carService.UpdateCarByReg(registration, up_car);
             return AppResult.Status200OKWithData(car);
@@ -128,19 +95,12 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithMessage($"成功删除: {row} 辆车");
         }
 
-        //[HttpDelete("managers/{manager_email}/cars/{registration}")]
-        //public AppResult DeleteCarByManagerEmail(string manager_email, string registration)
-        //{
-        //    _carService.DeleteCarByManagerEmail(manager_email, registration);
-        //    return AppResult.Status200OKWithMessage("删除车辆成功");
-        //}
-
-        [HttpPatch("cars/deleteCars")]
-        public AppResult DeleteCarsByIds(long[] ids)
+        [HttpPatch("cars")]
+        public AppResult DeleteCarsByIds([FromBody] long[] ids)
         {
             var row = _carService.DeletebyIds(ids);
 
-            return AppResult.Status200OKWithMessage($"成功删除 {row}个用户");
+            return AppResult.Status200OKWithMessage($"成功删除 {row}辆车");
         }
     }
 }

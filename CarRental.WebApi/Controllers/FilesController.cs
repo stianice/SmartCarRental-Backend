@@ -25,8 +25,8 @@ namespace CarRental.WebApi.Controllers
         }
 
         // POST api/<FileController>
-        [CheckMenu(PermissionEnum.CarManagement)]
-        [HttpPost("uploadimage")]
+        [CheckPermission(PermissionEnum.CarManagement)]
+        [HttpPost("cars/{car}/images")]
         public async Task<AppResult> PostAsync(IFormFile file)
         {
             if (file.Length > 0)

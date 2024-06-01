@@ -12,5 +12,7 @@ namespace CarRental.Services.DTO
         public short? Available { get; set; } = null;
 
         public string Remarks { get; set; } = string.Empty;
+
+        public List<long> MenuIds { get; set; } = new List<long>();
     }
 }

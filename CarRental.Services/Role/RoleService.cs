@@ -92,27 +92,35 @@ namespace CarRental.Services
             }
         }
 
-        public void AlignMenus(long roleId, long[] menuIds)
+        public void PutRoleAndAlignMenu(RoleUpdateReq req)
         {
-            Role role =
-                _db.Roles.Include(r => r.Menus).First(r => r.RoleId == roleId)
-                ?? throw AppResultException.Status404NotFound();
+            Role role = _db.Roles.Include(r => r.Menus).Single(r => r.RoleId == req.RoleId);
 
-            List<Menu> menus = _db
-                .Menus.Where(x => menuIds.Contains(x.MenuId))
-                .AsNoTracking()
-                .ToList();
-
-            role.Menus = menus;
+            role.Menus = _db.Menus.Where(x => req.MenuIds.Contains(x.MenuId)).ToList();
 
             try
             {
                 _db.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw AppResultException.Status500InternalServerError();
+                throw AppResultException.Status500InternalServerError(ex.Message);
             }
+        }
+
+        public void BanRole(long roleId)
+        {
+            _db.Roles.Where(r => r.RoleId == roleId)
+                .ExecuteUpdate(r => r.SetProperty(r => r.Available, 0));
+        }
+
+        public List<Role> GetManagersRoles(string email)
+        {
+            return _db
+                .Managers.Where(m => m.Email == email)
+                .SelectMany(m => m.Roles)
+                .AsNoTracking()
+                .ToList();
         }
     }
 }

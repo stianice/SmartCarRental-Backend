@@ -8,6 +8,7 @@
 
         public List<Manager> Managers { get; set; } = new();
         public byte Available { get; set; }
+        public byte Deleted { get; set; }
 
         public List<Menu> Menus { get; set; } = [];
 

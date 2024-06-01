@@ -14,5 +14,6 @@ namespace CarRental.Repository.Entity
         public byte Level { get; set; } = 2;
         public required string Title { get; set; }
         public required string IconPath { get; set; }
+        public byte IsDeleted { get; set; }
     }
 }

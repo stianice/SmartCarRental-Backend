@@ -1,13 +1,16 @@
 ﻿using CarRental.Common;
+using CarRental.Common.Constant;
 using CarRental.Repository.Entity;
 using CarRental.Services;
 using CarRental.Services.DTO;
+using CarRental.WebApi.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.WebApi.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
+    [CheckPermission(PermissionEnum.RoleManagement)]
     public class RolesController : ControllerBase
     {
         private readonly RoleService _roleService;
@@ -59,12 +62,19 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OK();
         }
 
-        [HttpPost("{roleId}/assignMenus")]
-        public AppResult AlignMenus(long roleId, long[] menuIds)
+        [HttpPut("{roleId}")]
+        public AppResult PutAndAlignMenus(long roleId, RoleUpdateReq roleUpdateReq)
         {
-            _roleService.AlignMenus(roleId, menuIds);
+            _roleService.PutRoleAndAlignMenu(roleUpdateReq);
 
             return AppResult.Status200OK();
+        }
+
+        [HttpGet("/api/v1/managers/{email}/roles")]
+        public AppResult GetManagersRoles(string email)
+        {
+            var roles = _roleService.GetManagersRoles(email);
+            return AppResult.Status200OKWithData(roles);
         }
     }
 }

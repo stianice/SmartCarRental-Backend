@@ -22,7 +22,7 @@ namespace CarRental.WebApi.Controllers
         }
 
         //        // GET all users
-        [CheckMenu(PermissionEnum.BasicManagement)]
+        [CheckPermission(PermissionEnum.BasicManagement)]
         [HttpGet]
         public AppResult GetAllUsers()
         {
@@ -31,8 +31,8 @@ namespace CarRental.WebApi.Controllers
         }
 
         // GET a specific user by email
-        [HttpGet("{user_email}")]
-        public AppResult GetUserByEmail(string user_email)
+        [HttpGet("{user_email:alpha:maxlength(40)}")]
+        public AppResult GetUser([FromQuery] string user_email)
         {
             User user = userService.GetUserByEmail(user_email);
             var links = new
@@ -48,23 +48,13 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(links);
         }
 
-        [HttpPatch("{user_email}")]
+        [HttpPatch("{user_email:alpha:maxlength(40)}")]
         public AppResult PatchUserByEmail(PatchUserReq patchUser, string user_email)
         {
             User user = userService.PartialUpdate(user_email, patchUser);
 
             return AppResult.Status200OK("用户信息更新成功", user);
         }
-
-        //// PUT to modify all fields within a user
-        //待实现
-        //[HttpPut]
-        //public Entity ModifyUserByEmail(Entity user)
-        //{
-        //    return user;
-        //}
-
-
 
         // DELETE all users
         [HttpDelete]
@@ -77,8 +67,8 @@ namespace CarRental.WebApi.Controllers
 
         // DELETE to remove user by email
         //router.delete('/api/v1/users/:user_email', UserController.deleteUserByEmail);
-        [HttpDelete("{user_email}")]
-        public AppResult DeleteUserByEamil(string user_email)
+        [HttpDelete("{user_email:alpha:maxlength(40)}")]
+        public AppResult DeleteUserByEmail(string user_email)
         {
             userService.DeleteUserByEmail(user_email);
 
@@ -114,7 +104,7 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(list);
         }
 
-        [HttpGet("sexCity/{city_name}")]
+        [HttpGet("sexCity/{city_name:alpha:maxlength(20)}")]
         public AppResult GetSexCity(string city_name)
         {
             var list = userService.GetSexes(city_name);

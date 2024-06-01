@@ -41,7 +41,7 @@ namespace CarRental.Common.Components.Authorization
             }
             _cache.Set("permissions_" + id, menusIds, TimeSpan.FromMinutes(10));
 
-            if (menusIds.Contains(requirement.PermissionId))
+            if (!menusIds.Contains(requirement.PermissionId))
             {
                 context.Fail();
                 return Task.CompletedTask;

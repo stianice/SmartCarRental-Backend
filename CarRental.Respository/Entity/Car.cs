@@ -17,7 +17,7 @@
         public string Description { get; set; } = string.Empty;
         public string Brand { get; set; } = null!;
 
-        public Manager Manager { get; set; } = new Manager();
+        public Manager? Manager { get; set; }
 
         public byte Status { get; set; }
         public bool IsDeleted { get; set; }

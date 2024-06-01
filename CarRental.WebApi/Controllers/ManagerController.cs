@@ -35,7 +35,7 @@ namespace CarRental.WebApi.Controllers
         }
 
         //// GET a specific manager by email
-        //router.get('/api/v1/managers/:manager_email', ManagerController.getManagerByEmail);
+
         [HttpGet("{manager_email}")]
         public ActionResult GetManagerByEmail(string manager_email)
         {
@@ -91,7 +91,7 @@ namespace CarRental.WebApi.Controllers
         }
 
         //// PATCH to partially modify an existing user by email
-        //router.patch('/api/v1/managers/:manager_email', ManagerController.patchManagerByEmail)
+
 
         [HttpPatch("{manager_email}")]
         public ActionResult PatchManagerByEmail(string new_password, string manager_email)
@@ -134,7 +134,20 @@ namespace CarRental.WebApi.Controllers
             return NotFound(new { message = "管理员不存在" });
         }
 
-        //// Authenticate the manager login
-        //router.post('/api/v1/managers/login', ManagerController.authenticateManager);
+        [HttpPatch("{manager_email}/roles")]
+        public ActionResult PatchManagerRoles(string manager_email, [FromBody] long[] roleIds)
+        {
+            Manager? manager = _dbContext.Managers.SingleOrDefault(x => x.Email == manager_email);
+            if (manager == null)
+            {
+                return NotFound(new { message = "管理员不存在" });
+            }
+
+            manager.Roles = _dbContext.Roles.Where(x => roleIds.Contains(x.RoleId)).ToList();
+
+            _dbContext.SaveChanges();
+
+            return Ok(new { message = "管理员角色更新成功", manager });
+        }
     }
 }

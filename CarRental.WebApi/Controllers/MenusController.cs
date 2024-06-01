@@ -12,6 +12,7 @@ namespace CarRental.WebApi.Controllers
 {
     [Route("api/v1/[controller]")]
     [Authorize(Roles = "manager")]
+    [CheckPermission(PermissionEnum.MenuManagement)]
     public class MenusController : ControllerBase
     {
         private readonly IMemoryCache _memoryCache;
@@ -23,12 +24,22 @@ namespace CarRental.WebApi.Controllers
             _menuService = menuService;
         }
 
+        /// <summary>
+        /// 获取所有菜单
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public AppResult GetAllMenus()
         {
             return AppResult.Status200OKWithData(_menuService.GetList());
         }
 
+        /// <summary>
+        /// 获取当前登录用户的菜单
+        /// </summary>
+        /// <returns></returns>
+        ///
+        [NoCheckPermission]
         [HttpGet("list")]
         public AppResult List()
         {
@@ -40,6 +51,11 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(menus);
         }
 
+        /// <summary>
+        /// 获取菜单详情
+        /// </summary>
+        /// <param name="menuId"></param>
+        /// <returns></returns>
         [HttpGet("{menuId}")]
         public AppResult GetMenuById(long menuId)
         {
@@ -47,16 +63,25 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithData(menu);
         }
 
+        /// <summary>
+        /// 新增菜单
+        /// </summary>
+        /// <param name="menuReq"></param>
+        /// <returns></returns>
         [HttpPost]
-        [CheckMenu(PermissionEnum.MenuManagement)]
         public AppResult AddMenu(PostMenuReq menuReq)
         {
             _menuService.AddMenu(menuReq);
             return AppResult.Status200OK();
         }
 
+        /// <summary>
+        /// 更新菜单
+        /// </summary>
+        /// <param name="menuId"></param>
+        /// <param name="updateReq"></param>
+        /// <returns></returns>
         [HttpPut]
-        [CheckMenu(PermissionEnum.MenuManagement)]
         public AppResult UpdateMenu(long menuId, UpdateMenusReq updateReq)
         {
             updateReq.MenuId = menuId;
@@ -64,7 +89,12 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OK();
         }
 
-        [CheckMenu(PermissionEnum.MenuManagement)]
+        /// <summary>
+        /// 删除菜单
+        /// </summary>
+        /// <param name="menuId"></param>
+        /// <returns></returns>
+
         [HttpDelete("{menuId}")]
         public AppResult DeleteMenu(long menuId)
         {
@@ -72,7 +102,12 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OK();
         }
 
-        [CheckMenu(PermissionEnum.MenuManagement)]
+        /// <summary>
+        /// 批量删除菜单
+        /// </summary>
+        /// <param name="Ids"></param>
+        /// <returns></returns>
+
         [HttpPatch("batchdelete")]
         public AppResult BatchDelete(List<long> Ids)
         {

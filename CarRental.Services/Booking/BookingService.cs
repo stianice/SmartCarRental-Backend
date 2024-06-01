@@ -205,11 +205,12 @@ public class BookingService
         }
     }
 
-    public List<BookingRsp> GetBookingsByCondition(BookingSearchReq req)
+    public List<BookingRsp> GetBookingsByCondition(BookingQueryReq req)
     {
         IQueryable<Booking> query = _db
             .Bookings.Include(x => x.Car)
             .Include(x => x.User)
+            .AsNoTracking()
             .AsQueryable();
 
         if (!req.Registration.IsNullOrEmpty())
@@ -257,18 +258,17 @@ public class BookingService
         }
     }
 
-    public void RentalCar(UpBookingStatusReq bookingStatus)
+    public void RentalCar(string bookingReference, BookingStatusReq pram)
     {
         try
         {
-            Car car = _db.Cars.First(x => x.Registration == bookingStatus.Registration);
-            Booking booking = _db.Bookings.First(x =>
-                x.BookingReference == bookingStatus.BookingReference
-            );
+            Booking booking = _db
+                .Bookings.Include(x => x.Car)
+                .First(x => x.BookingReference == bookingReference);
 
-            car.Status = bookingStatus.CarStatus;
+            booking.Car.Status = pram.CarStatus;
 
-            booking.Status = bookingStatus.BookingStatus;
+            booking.Status = pram.BookingStatus;
 
             _db.SaveChanges();
         }

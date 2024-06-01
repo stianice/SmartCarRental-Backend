@@ -2,9 +2,11 @@
 using CarRental.Repository;
 using CarRental.Repository.Entity;
 using CarRental.Services.DTO;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CarRental.Services
 {
@@ -23,7 +25,7 @@ namespace CarRental.Services
                 _db.Managers.FirstOrDefault(x => x.Email == manager_email)
                 ?? throw AppResultException.Status404NotFound("不存在该管理员");
 
-            foreach (var item in GetAllCar())
+            foreach (var item in GetAllCar(null))
             {
                 if (item.Registration == postCar.Registration)
                 {
@@ -40,11 +42,42 @@ namespace CarRental.Services
             return postCar;
         }
 
-        public Car[] GetAllCar()
+        public Car[] GetAllCar(CarQueryParameters? parameters)
         {
+            var query = _db.Cars.AsQueryable();
+
+            if (parameters != null)
+            {
+                // Filter by brand
+                if (!string.IsNullOrEmpty(parameters.Brand))
+                {
+                    query = query.Where(car => car.Brand == parameters.Brand);
+                }
+
+                // Filter by color
+                if (!string.IsNullOrEmpty(parameters.Color))
+                {
+                    query = query.Where(car => car.Color == parameters.Color);
+                }
+
+                // Sort
+                if (!string.IsNullOrEmpty(parameters.Sort))
+                {
+                    switch (parameters.Sort.ToLower())
+                    {
+                        case "asc":
+                            query = query.OrderBy(car => car.Price);
+                            break;
+                        case "desc":
+                            query = query.OrderByDescending(car => car.Price);
+                            break;
+                    }
+                }
+            }
+
             try
             {
-                return _db.Cars.ToArray();
+                return query.AsNoTracking().ToArray();
             }
             catch (Exception)
             {
@@ -129,8 +162,9 @@ namespace CarRental.Services
         {
             Manager? manager = _db
                 .Managers.Include(x => x.Cars)
+                .AsNoTracking()
                 .FirstOrDefault(x => x.Email == manager_email);
-            if (manager is null)
+            if (manager == null)
             {
                 throw AppResultException.Status404NotFound("管理员不存在");
             }
@@ -142,33 +176,11 @@ namespace CarRental.Services
             return manager.Cars;
         }
 
-        public List<Car> GetCarByManagerEmailAndReg(string manager_email, string registration)
-        {
-            Manager? manager = _db
-                .Managers.Include(x => x.Cars)
-                .FirstOrDefault(x => x.Email == manager_email);
-            if (manager is null)
-            {
-                throw AppResultException.Status404NotFound("管理员不存在");
-            }
-
-            if (manager.Cars.IsNullOrEmpty())
-            {
-                throw AppResultException.Status404NotFound("管理员还未添加车辆");
-            }
-            List<Car> cars = new();
-            cars = manager.Cars!.Where(x => x.Registration == registration).ToList();
-            if (cars.IsNullOrEmpty())
-            {
-                throw AppResultException.Status404NotFound("管理员还未添加车辆");
-            }
-            return cars;
-        }
-
         public Car GetCarByBookingRef(string booking_reference)
         {
             Booking? booking = _db
                 .Bookings.Include(x => x.Car)
+                .AsNoTracking()
                 .FirstOrDefault(x => x.BookingReference == booking_reference);
 
             if (booking is null)

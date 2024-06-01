@@ -90,6 +90,7 @@ namespace CarRental.WebApi.Controllers
 
         // DELETE to remove booking by user and bookingReference
 
+        //删除指定用户的指定订单
         [HttpDelete("users/{user_email}/bookings/{booking_reference}")]
         public AppResult Delete(string user_email, string booking_reference)
         {
@@ -97,8 +98,8 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithMessage("成功移除该订单");
         }
 
-        [HttpPatch("bookings/{id}")]
-        public AppResult Update(long id, Booking booking)
+        [HttpPut("bookings/{id}")]
+        public AppResult Patch(long id, Booking booking)
         {
             booking.BookingId = id;
             _bokingService.PatchUpdate(booking);
@@ -106,22 +107,22 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithMessage("更新订单成功");
         }
 
-        [HttpPatch("bookings/deletebyids")]
+        [HttpPatch("bookings")]
         public AppResult DeleteByIds(long[] ids)
         {
             long row = _bokingService.DeleteByIds(ids);
             return AppResult.Status200OKWithMessage($"成功删除 {row} 行数据");
         }
 
-        [HttpPatch("bookings/up_status")]
-        public AppResult UpStatus(UpBookingStatusReq status)
+        [HttpPatch("bookings/{bookingReference}")]
+        public AppResult UpStatus(string bookingReference, BookingStatusReq status)
         {
-            _bokingService.RentalCar(status);
+            _bokingService.RentalCar(bookingReference, status);
             return AppResult.Status200OKWithMessage("出租成功");
         }
 
         [HttpPost("bookings/search")]
-        public AppResult GetBookingsByCondiction(BookingSearchReq req)
+        public AppResult GetBookingsByParams(BookingQueryReq req)
         {
             var list = _bokingService.GetBookingsByCondition(req);
 
