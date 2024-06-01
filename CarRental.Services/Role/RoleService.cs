@@ -1,7 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
-using CarRental.Respository.Models;
-using CarRental.Services.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
+using CarRental.Services.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.Services
@@ -14,7 +14,7 @@ namespace CarRental.Services
         {
             try
             {
-                return _db.Roles.ToList();
+                return _db.Roles.Include(r => r.Menus).AsNoTracking().ToList();
             }
             catch (Exception)
             {
@@ -94,9 +94,14 @@ namespace CarRental.Services
 
         public void AlignMenus(long roleId, long[] menuIds)
         {
-            Role role = _db.Roles.Find(roleId) ?? throw AppResultException.Status404NotFound();
+            Role role =
+                _db.Roles.Include(r => r.Menus).First(r => r.RoleId == roleId)
+                ?? throw AppResultException.Status404NotFound();
 
-            List<Menu> menus = _db.Menus.Where(x => menuIds.Contains(x.MenuId)).ToList();
+            List<Menu> menus = _db
+                .Menus.Where(x => menuIds.Contains(x.MenuId))
+                .AsNoTracking()
+                .ToList();
 
             role.Menus = menus;
 

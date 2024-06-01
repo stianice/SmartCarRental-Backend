@@ -1,6 +1,6 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
-using CarRental.Respository.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

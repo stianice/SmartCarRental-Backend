@@ -1,7 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
-using CarRental.Respository.Models;
-using CarRental.Services.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
+using CarRental.Services.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -88,7 +88,7 @@ namespace CarRental.Services
 
         public long DeleteAllManager()
         {
-            return _db.Managers.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+            return _db.Managers.ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
         }
 
         public void DeleteUserByEmail(string email)
@@ -96,7 +96,7 @@ namespace CarRental.Services
             try
             {
                 var manager = _db.Managers.First(x => x.Email == email);
-                manager.IsDelted = true;
+                manager.IsDeleted = true;
                 _db.SaveChanges();
             }
             catch (Exception)
@@ -109,7 +109,7 @@ namespace CarRental.Services
         {
             try
             {
-                Manager? man = _db.Managers.FirstOrDefault(x => x.Email == us.Email);
+                Manager? man = _db.Managers.AsNoTracking().FirstOrDefault(x => x.Email == us.Email);
 
                 if (man == null)
                 {

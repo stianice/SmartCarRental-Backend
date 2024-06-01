@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CarRental.Respository.Models
+namespace CarRental.Repository.Entity
 {
     internal class UserConfig : IEntityTypeConfiguration<User>
     {
@@ -17,8 +17,7 @@ namespace CarRental.Respository.Models
 
             builder.Property(x => x.PhoneNumber).HasMaxLength(13).HasColumnName("phonenumber");
 
-            builder.HasMany(x => x.Bookings).WithOne(x => x.User).IsRequired();
-            builder.HasQueryFilter(x => x.IsDelted == false);
+            builder.HasQueryFilter(x => x.IsDeleted == false);
         }
     }
 }

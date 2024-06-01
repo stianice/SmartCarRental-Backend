@@ -1,7 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
-using CarRental.Respository.Models;
-using CarRental.Services.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
+using CarRental.Services.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,6 +15,7 @@ public class UserService
     {
         _db = db;
     }
+
     public User[] GetAllUsers()
     {
         try
@@ -95,14 +96,14 @@ public class UserService
 
     public long DeleteAllUser()
     {
-        return _db.Users.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+        return _db.Users.ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
     }
 
     public long DeletebyIds(long[] ids)
     {
         return _db
             .Users.Where(x => ids.Contains(x.UserId))
-            .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+            .ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
     }
 
     public void DeleteUserByEmail(string email)
@@ -110,7 +111,7 @@ public class UserService
         try
         {
             var user = _db.Users.First(x => x.Email == email);
-            user.IsDelted = true;
+            user.IsDeleted = true;
             _db.SaveChanges();
         }
         catch (Exception)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CarRental.Respository.Models
+namespace CarRental.Repository.Entity
 {
     internal class ManagerConfig : IEntityTypeConfiguration<Manager>
     {
@@ -26,6 +26,8 @@ namespace CarRental.Respository.Models
                 .HasMany(x => x.Roles)
                 .WithMany(x => x.Managers)
                 .UsingEntity(x => x.ToTable("t_role_manager"));
+
+            //约定发现一对多car和manager的关系
         }
     }
 }

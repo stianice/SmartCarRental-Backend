@@ -1,7 +1,7 @@
-﻿using CarRental.Respository.Models;
+﻿using CarRental.Repository.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace CarRental.Respository
+namespace CarRental.Repository
 {
     public class CarRentalContext : DbContext
     {
@@ -24,6 +24,7 @@ namespace CarRental.Respository
             //optionsBuilder.UseMySQL();
 
             base.OnConfiguring(optionsBuilder);
+            optionsBuilder.UseSnakeCaseNamingConvention();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

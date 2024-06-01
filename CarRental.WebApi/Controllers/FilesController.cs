@@ -1,5 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
+using CarRental.Common.Constant;
+using CarRental.Repository;
+using CarRental.WebApi.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -23,6 +25,7 @@ namespace CarRental.WebApi.Controllers
         }
 
         // POST api/<FileController>
+        [CheckMenu(PermissionEnum.CarManagement)]
         [HttpPost("uploadimage")]
         public async Task<AppResult> PostAsync(IFormFile file)
         {

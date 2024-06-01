@@ -1,8 +1,8 @@
-﻿using CarRental.Respository.Models;
+﻿using CarRental.Repository.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CarRental.Respository.Config
+namespace CarRental.Repository.Config
 {
     internal class CheckConfig : IEntityTypeConfiguration<Check>
     {
@@ -12,7 +12,9 @@ namespace CarRental.Respository.Config
                 .ToTable("t_check", tb => tb.HasComment("检查单"))
                 .UseCollation("utf8mb4_general_ci");
 
-            builder.HasQueryFilter(x => x.IsDelted == false);
+            builder.HasOne(x => x.Booking).WithOne().HasForeignKey<Check>(x => x.BookingId);
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
         }
     }
 }

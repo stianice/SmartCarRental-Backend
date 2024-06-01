@@ -1,5 +1,7 @@
 using CarRental.Common;
-using CarRental.Respository;
+using CarRental.Common.Components.Authorization;
+using CarRental.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
@@ -21,15 +23,6 @@ try
 
     //统一返回设置，异常返回
     builder.Services.AddControllers().AddDataValidation().AddAppResult();
-    //.AddNewtonsoftJson(opt =>
-    //{
-    //    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft
-    //        .Json
-    //        .ReferenceLoopHandling
-    //        .Ignore;
-
-    //    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-    //})
 
     var con = Configuration["MySql:ConnectStrings"];
 
@@ -38,24 +31,29 @@ try
     //Service层
     builder.Services.AddAutoServices("CarRental.Services");
 
+    //缓存
+    builder.Services.AddMemoryCache();
+
     //Json
     builder.Services.AddSimpleJsonOptions();
 
     //授权
     builder.Services.AddJwtAuthentication();
+
+    builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddSimpleSwagger(options =>
     {
-        options.SwaggerDoc("v1", new OpenApiInfo { Title = "三层接口文档v1", Version = "v1" });
+        options.SwaggerDoc("v1", new OpenApiInfo { Title = "接口文档v1", Version = "v1" });
     });
 
     //跨域
     builder.Services.AddSimpleCors();
 
     var app = builder.Build();
-
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

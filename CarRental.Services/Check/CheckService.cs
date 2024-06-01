@@ -1,8 +1,8 @@
 ﻿using CarRental.Common;
 using CarRental.Common.Constant;
-using CarRental.Respository;
-using CarRental.Respository.Models;
-using CarRental.Services.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
+using CarRental.Services.DTO;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -109,7 +109,7 @@ namespace CarRental.Services
             }
         }
 
-        public void AddCheck(PostCheckReq req)
+        public void Add(PostCheckReq req)
         {
             try
             {
@@ -122,7 +122,9 @@ namespace CarRental.Services
 
                 booking.Status = CommonEnum.Booking_BACK_TRUE;
                 booking.Car.Status = CommonEnum.RENT_CAR_FLASE;
-                booking.Check = check;
+
+                check.BookingId = booking.BookingId;
+
                 _db.Checks.Add(check);
 
                 _db.SaveChanges();
@@ -139,7 +141,7 @@ namespace CarRental.Services
             {
                 return _db
                     .Checks.Where(x => ids.Contains(x.CheckId))
-                    .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+                    .ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
             }
             catch (Exception)
             {

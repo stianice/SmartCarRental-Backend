@@ -6,10 +6,16 @@ namespace CarRental.Common.Filters;
 
 public class DataValidationFilter : IActionFilter, IOrderedFilter
 {
-    public int Order { get; set; }
+    public int Order => 3000;
+
+    public void OnActionExecuted(ActionExecutedContext context)
+    {
+        Console.WriteLine("DataValidationFilter OnActionExecutionAsync 结束");
+    }
 
     public void OnActionExecuting(ActionExecutingContext context)
     {
+        Console.WriteLine("DataValidationFilter OnActionExecutionAsync 开始");
         // 如果其他过滤器已经设置了结果，则跳过验证
         if (context.Result != null)
             return;
@@ -33,7 +39,7 @@ public class DataValidationFilter : IActionFilter, IOrderedFilter
 
         // 设置结果
         context.Result = new BadRequestObjectResult(result); // ObjectResult(result);
-    }
 
-    public void OnActionExecuted(ActionExecutedContext context) { }
+        return;
+    }
 }

@@ -1,7 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
-using CarRental.Respository.Models;
-using CarRental.Services.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
+using CarRental.Services.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.Services
@@ -15,42 +15,42 @@ namespace CarRental.Services
             _db = db;
         }
 
-        public List<Menu> GetAllMenu()
-        {
-            try
-            {
-                //查询出所有菜单
-                var list = _db.Menus.ToList();
+        //public List<Menu> GetAllMenu()
+        //{
+        //    try
+        //    {
+        //        //查询出所有菜单
+        //        var list = _db.Menus.ToList();
 
-                return GetMenusTree(list, 1);
-            }
-            catch (Exception)
-            {
-                throw AppResultException.Status500InternalServerError();
-            }
-        }
+        //        return GetMenusTree(list, 1);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw AppResultException.Status500InternalServerError();
+        //    }
+        //}
 
-        public List<Menu> GetMenusTree(List<Menu> menus, long pid)
-        {
-            List<Menu> result = new List<Menu>();
-            foreach (var menu in menus)
-            {
-                if (menu.ParentId == pid)
-                {
-                    menu.Children = GetMenusTree(menus, menu.MenuId);
+        //public List<Menu> GetMenusTree(List<Menu> menus, long pid)
+        //{
+        //    List<Menu> result = new List<Menu>();
+        //    foreach (var menu in menus)
+        //    {
+        //        if (menu.ParentId == pid)
+        //        {
+        //            menu.Children = GetMenusTree(menus, menu.MenuId);
 
-                    result.Add(menu);
-                }
-            }
+        //            result.Add(menu);
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public List<Menu> GetList()
         {
             try
             {
-                return _db.Menus.ToList();
+                return _db.Menus.AsNoTracking().ToList();
             }
             catch (Exception)
             {
@@ -119,11 +119,8 @@ namespace CarRental.Services
 
         public Menu GetMenuById(long menuId)
         {
-            List<Menu> menus = _db.Menus.Where(x => x.ParentId == menuId).ToList();
-
-            Menu menu = _db.Menus.Find(menuId) ?? throw AppResultException.Status404NotFound();
-            menu.Children = menus;
-            return menu;
+            return _db.Menus.Include(x => x.Children).AsNoTracking().First(x => x.MenuId == menuId)
+                ?? throw AppResultException.Status404NotFound();
         }
 
         public void BatchDeleteRoles(List<long> ids)
@@ -136,6 +133,24 @@ namespace CarRental.Services
             {
                 throw AppResultException.Status500InternalServerError();
             }
+        }
+
+        public List<Menu>? GetMenuByManagerId(long v)
+        {
+            if (v == 1)
+            {
+                return GetList();
+            }
+
+            var menus = _db
+                .Managers.Where(x => x.ManagerId == v)
+                .SelectMany(x => x.Roles)
+                .SelectMany(x => x.Menus)
+                .Distinct()
+                .AsNoTracking()
+                .ToList();
+
+            return menus;
         }
     }
 }

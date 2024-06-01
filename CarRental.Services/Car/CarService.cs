@@ -1,7 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
-using CarRental.Respository.Models;
-using CarRental.Services.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
+using CarRental.Services.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -248,7 +248,7 @@ namespace CarRental.Services
         {
             int row = _db
                 .Cars.Where(x => x.Registration == registration)
-                .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+                .ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
             if (row < 1)
             {
                 throw AppResultException.Status404NotFound("车辆未找到");
@@ -257,7 +257,7 @@ namespace CarRental.Services
 
         public long DeleteAllCars()
         {
-            long row = _db.Cars.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+            long row = _db.Cars.ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
             if (row == 0)
             {
                 throw AppResultException.Status404NotFound("车辆未找到");
@@ -275,7 +275,7 @@ namespace CarRental.Services
 
                 Car car = manager.Cars.First(x => x.Registration == registration);
 
-                car.IsDelted = true;
+                car.IsDeleted = true;
                 _db.SaveChanges();
             }
             catch (Exception)
@@ -328,7 +328,7 @@ namespace CarRental.Services
             {
                 return _db
                     .Cars.Where(x => ids.Contains(x.CarId))
-                    .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+                    .ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
             }
             catch (Exception)
             {
@@ -340,7 +340,7 @@ namespace CarRental.Services
         {
             try
             {
-                return [.. _db.Cars.OrderBy(x =>  EF.Functions.Random()).Take(num)];
+                return [.. _db.Cars.OrderBy(x => EF.Functions.Random()).Take(num)];
             }
             catch (Exception)
             {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CarRental.Respository.Models
+namespace CarRental.Repository.Entity
 {
     internal class BookingConfig : IEntityTypeConfiguration<Booking>
     {
@@ -20,17 +20,16 @@ namespace CarRental.Respository.Models
                 .HasMaxLength(20);
 
             builder
-                .HasOne(x => x.Check)
-                .WithOne(x => x.Booking)
-                .HasForeignKey<Check>(x => x.BookingId);
-
-            builder
                 .Property(x => x.BookingReference)
                 .IsRequired()
                 .HasMaxLength(15)
                 .HasColumnName("booking_reference");
 
-            builder.HasQueryFilter(x => x.IsDelted == false);
+            builder.HasOne(x => x.Car).WithMany().IsRequired();
+
+            builder.HasOne(x => x.User).WithMany(x => x.Bookings).IsRequired();
+
+            builder.HasQueryFilter(x => x.IsDeleted == false);
         }
     }
 }

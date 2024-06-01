@@ -13,14 +13,13 @@ public static class DataValidationMvcBuilderExtensions
     {
         builder.ConfigureApiBehaviorOptions(options =>
         {
-            // 禁用默认模型验证过滤器
             options.SuppressModelStateInvalidFilter = true;
         });
 
         builder.AddMvcOptions(options =>
         {
             // 添加自定义模型验证过滤器
-            options.Filters.Add<DataValidationFilter>();
+            options.Filters.Add<DataValidationFilter>(3000);
         });
 
         return builder;

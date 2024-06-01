@@ -1,8 +1,8 @@
-﻿using CarRental.Respository.Models;
+﻿using CarRental.Repository.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CarRental.Respository.Config
+namespace CarRental.Repository.Config
 {
     internal class LogLoginConfig : IEntityTypeConfiguration<LogLogin>
     {
@@ -14,7 +14,7 @@ namespace CarRental.Respository.Config
                 .ToTable("t_log_login", tb => tb.HasComment("日志表"))
                 .UseCollation("utf8mb4_general_ci")
                 .HasKey("LogId");
-            builder.HasQueryFilter(x => x.IsDelted == false);
+            builder.HasQueryFilter(x => x.IsDeleted == false);
         }
     }
 }

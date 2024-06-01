@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CarRental.Respository.Models
+namespace CarRental.Repository.Entity
 {
     internal class CarConfig : IEntityTypeConfiguration<Car>
     {
@@ -22,7 +22,7 @@ namespace CarRental.Respository.Models
 
             builder.Property(x => x.Registration).HasMaxLength(50).HasColumnName("registration");
 
-            builder.HasQueryFilter(x => x.IsDelted == false);
+            builder.HasQueryFilter(x => x.IsDeleted == false);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository;
-using CarRental.Respository.Models;
-using CarRental.Services.Models;
+using CarRental.Repository;
+using CarRental.Repository.Entity;
+using CarRental.Services.DTO;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,10 +21,10 @@ public class BookingService
     {
         try
         {
-            var bookingResp = _db
-                .Bookings.Include(x => x.Car)
-                .Include(x => x.User)
-                .Select(x => new BookingRsp()
+            Booking[] bookings = _db.Bookings.AsNoTracking().ToArray();
+
+            var bookingRsp = _db
+                .Bookings.Select(x => new BookingRsp()
                 {
                     BookingId = x.BookingId,
                     BookingReference = x.BookingReference,
@@ -38,9 +38,10 @@ public class BookingService
                     CreateDate = x.CreateDate,
                     CustomerName = x.User.Name,
                 })
+                .AsNoTracking()
                 .ToArray();
 
-            return bookingResp;
+            return bookingRsp;
         }
         catch (Exception)
         {
@@ -140,7 +141,7 @@ public class BookingService
 
     public long RemoveAllBookings()
     {
-        return _db.Bookings.ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+        return _db.Bookings.ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
     }
 
     public long removeBookingByUserAndRef(string user_email, string booking_reference)
@@ -153,7 +154,7 @@ public class BookingService
                 .Bookings.Where(x => x.BookingReference == booking_reference)
                 .First();
 
-            booking.IsDelted = true;
+            booking.IsDeleted = true;
             return _db.SaveChanges();
         }
         catch (Exception)
@@ -196,7 +197,7 @@ public class BookingService
         {
             return _db
                 .Bookings.Where(x => ids.Contains(x.BookingId))
-                .ExecuteUpdate(x => x.SetProperty(x => x.IsDelted, true));
+                .ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
         }
         catch (Exception)
         {
@@ -256,22 +257,18 @@ public class BookingService
         }
     }
 
-    public void RentalCar(UpBookingStatusReq status)
+    public void RentalCar(UpBookingStatusReq bookingStatus)
     {
         try
         {
-            Car car = _db.Cars.First(x => x.Registration == status.Registration);
+            Car car = _db.Cars.First(x => x.Registration == bookingStatus.Registration);
             Booking booking = _db.Bookings.First(x =>
-                x.BookingReference == status.BookingReference
+                x.BookingReference == bookingStatus.BookingReference
             );
-            if (status.CarStatus != null)
-            {
-                car.Status = status.CarStatus;
-            }
-            if (status.BookingStatus != null)
-            {
-                booking.Status = status.BookingStatus;
-            }
+
+            car.Status = bookingStatus.CarStatus;
+
+            booking.Status = bookingStatus.BookingStatus;
 
             _db.SaveChanges();
         }

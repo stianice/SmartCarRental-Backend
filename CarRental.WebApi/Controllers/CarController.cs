@@ -1,6 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository.Models;
+using CarRental.Repository.Entity;
 using CarRental.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.WebApi.Controllers
@@ -17,13 +18,13 @@ namespace CarRental.WebApi.Controllers
         }
 
         //[Authorize(Roles = "manager")]
-        [HttpPost("managers/{manager_email}/cars")]
-        public AppResult CreateCarByManagerEmail([FromBody] Car postCar, string manager_email)
-        {
-            var car = _carService.CreateCarByManagerEmail(postCar, manager_email);
+        //[HttpPost("managers/{manager_email}/cars")]
+        //public AppResult CreateCarByManagerEmail(Car postCar, string manager_email)
+        //{
+        //    var car = _carService.CreateCarByManagerEmail(postCar, manager_email);
 
-            return AppResult.Status200OKWithData(car);
-        }
+        //    return AppResult.Status200OKWithData(car);
+        //}
 
         //// Return a list of all cars
         [HttpGet("cars")]
@@ -127,12 +128,12 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OKWithMessage($"成功删除: {row} 辆车");
         }
 
-        [HttpDelete("managers/{manager_email}/cars/{registration}")]
-        public AppResult DeleteCarByManagerEmail(string manager_email, string registration)
-        {
-            _carService.DeleteCarByManagerEmail(manager_email, registration);
-            return AppResult.Status200OKWithMessage("删除车辆成功");
-        }
+        //[HttpDelete("managers/{manager_email}/cars/{registration}")]
+        //public AppResult DeleteCarByManagerEmail(string manager_email, string registration)
+        //{
+        //    _carService.DeleteCarByManagerEmail(manager_email, registration);
+        //    return AppResult.Status200OKWithMessage("删除车辆成功");
+        //}
 
         [HttpPatch("cars/deleteCars")]
         public AppResult DeleteCarsByIds(long[] ids)

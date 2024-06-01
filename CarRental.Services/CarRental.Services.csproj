@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Car\Models\CarCondiction.cs\**" />
-    <EmbeddedResource Remove="Car\Models\CarCondiction.cs\**" />
-    <None Remove="Car\Models\CarCondiction.cs\**" />
+    <Compile Remove="Car\DTO\CarCondiction.cs\**" />
+    <EmbeddedResource Remove="Car\DTO\CarCondiction.cs\**" />
+    <None Remove="Car\DTO\CarCondiction.cs\**" />
   </ItemGroup>
 
   <ItemGroup>

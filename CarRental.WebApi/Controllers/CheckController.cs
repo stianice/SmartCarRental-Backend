@@ -1,6 +1,6 @@
 ﻿using CarRental.Common;
 using CarRental.Services;
-using CarRental.Services.Models;
+using CarRental.Services.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.WebApi.Controllers
@@ -26,7 +26,7 @@ namespace CarRental.WebApi.Controllers
         [HttpPost]
         public AppResult Create(PostCheckReq req)
         {
-            _checkService.AddCheck(req);
+            _checkService.Add(req);
             return AppResult.Status200OKWithMessage("车辆入库成功");
         }
 

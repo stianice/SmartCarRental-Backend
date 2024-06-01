@@ -1,7 +1,7 @@
 ﻿using CarRental.Common;
-using CarRental.Respository.Models;
+using CarRental.Repository.Entity;
 using CarRental.Services;
-using CarRental.Services.Models;
+using CarRental.Services.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.WebApi.Controllers

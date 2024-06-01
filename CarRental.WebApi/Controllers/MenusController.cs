@@ -1,31 +1,42 @@
-﻿using CarRental.Common;
+﻿using System.Security.Claims;
+using CarRental.Common;
+using CarRental.Common.Constant;
 using CarRental.Services;
-using CarRental.Services.Models;
+using CarRental.Services.DTO;
+using CarRental.WebApi.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CarRental.WebApi.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize(Roles = "manager")]
     public class MenusController : ControllerBase
     {
+        private readonly IMemoryCache _memoryCache;
         public readonly MenuService _menuService;
 
-        public MenusController(MenuService menuService)
+        public MenusController(MenuService menuService, IMemoryCache memoryCache)
         {
+            _memoryCache = memoryCache;
             _menuService = menuService;
         }
 
         [HttpGet]
         public AppResult GetAllMenus()
         {
-            var menus = _menuService.GetAllMenu();
-            return AppResult.Status200OKWithData(menus);
+            return AppResult.Status200OKWithData(_menuService.GetList());
         }
 
         [HttpGet("list")]
         public AppResult List()
         {
-            var menus = _menuService.GetList();
+            var claim =
+                User.Claims.First(t => t.Type == ClaimTypes.NameIdentifier)
+                ?? throw AppResultException.Status403Forbidden();
+
+            var menus = _menuService.GetMenuByManagerId(long.Parse(claim.Value));
             return AppResult.Status200OKWithData(menus);
         }
 
@@ -37,20 +48,23 @@ namespace CarRental.WebApi.Controllers
         }
 
         [HttpPost]
+        [CheckMenu(PermissionEnum.MenuManagement)]
         public AppResult AddMenu(PostMenuReq menuReq)
         {
             _menuService.AddMenu(menuReq);
             return AppResult.Status200OK();
         }
 
-        [HttpPut("{menuId}")]
-        public AppResult UpdateMenu(long menuId, [FromBody] UpdateMenusReq updateReq)
+        [HttpPut]
+        [CheckMenu(PermissionEnum.MenuManagement)]
+        public AppResult UpdateMenu(long menuId, UpdateMenusReq updateReq)
         {
             updateReq.MenuId = menuId;
             _menuService.UpdateMenu(updateReq);
             return AppResult.Status200OK();
         }
 
+        [CheckMenu(PermissionEnum.MenuManagement)]
         [HttpDelete("{menuId}")]
         public AppResult DeleteMenu(long menuId)
         {
@@ -58,6 +72,7 @@ namespace CarRental.WebApi.Controllers
             return AppResult.Status200OK();
         }
 
+        [CheckMenu(PermissionEnum.MenuManagement)]
         [HttpPatch("batchdelete")]
         public AppResult BatchDelete(List<long> Ids)
         {

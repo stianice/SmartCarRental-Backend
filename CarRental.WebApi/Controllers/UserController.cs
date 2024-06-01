@@ -1,7 +1,9 @@
 ﻿using CarRental.Common;
-using CarRental.Respository.Models;
+using CarRental.Common.Constant;
+using CarRental.Repository.Entity;
 using CarRental.Services;
-using CarRental.Services.Models;
+using CarRental.Services.DTO;
+using CarRental.WebApi.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +11,7 @@ namespace CarRental.WebApi.Controllers
 {
     [Route("api/v1/users")]
     [ApiController]
-    //[Authorize(Roles = "user,manager")]
+    [Authorize(Roles = "user,manager")]
     public class UserController : ControllerBase
     {
         private UserService userService;
@@ -20,6 +22,7 @@ namespace CarRental.WebApi.Controllers
         }
 
         //        // GET all users
+        [CheckMenu(PermissionEnum.BasicManagement)]
         [HttpGet]
         public AppResult GetAllUsers()
         {
@@ -56,7 +59,7 @@ namespace CarRental.WebApi.Controllers
         //// PUT to modify all fields within a user
         //待实现
         //[HttpPut]
-        //public Models ModifyUserByEmail(Models user)
+        //public Entity ModifyUserByEmail(Entity user)
         //{
         //    return user;
         //}

@@ -21,14 +21,12 @@ public static class AppResultMvcBuilderExtensions
             //options.Filters.Add<AppResultExceptionFilter>();
 
             // ActionFilter 实现，Order = -6000，这个过滤器会标记 AppResultException 被处理，故而 ExceptionFilter 将无法捕捉到
-            options.Filters.Add<AppResultActionFilter>();
+            options.Filters.Add<AppResultActionFilter>(1000);
         });
-
+        builder.Services.AddTransient<IConfigureOptions<AppResultOptions>, AppResultOptionsSetup>();
         // 如果有自定义配置
         if (setupAction != null)
             builder.Services.Configure(setupAction);
-        else // 默认 AppResultOptions 配置
-            builder.Services.AddTransient<IConfigureOptions<AppResultOptions>, AppResultOptionsSetup>();
 
         return builder;
     }
