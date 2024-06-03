@@ -26,4 +26,10 @@
     <ProjectReference Include="..\CarRental.Common\CarRental.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Booking\" />
+    <Folder Include="Car\" />
+    <Folder Include="新文件夹\" />
+  </ItemGroup>
+
 </Project>

@@ -10,12 +10,12 @@ public class DataValidationFilter : IActionFilter, IOrderedFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        Console.WriteLine("DataValidationFilter OnActionExecutionAsync 结束");
+        Console.WriteLine("DataValidationFilter 模型校验 结束");
     }
 
     public void OnActionExecuting(ActionExecutingContext context)
     {
-        Console.WriteLine("DataValidationFilter OnActionExecutionAsync 开始");
+        Console.WriteLine("DataValidationFilter 模型校验 开始");
         // 如果其他过滤器已经设置了结果，则跳过验证
         if (context.Result != null)
             return;
@@ -30,8 +30,7 @@ public class DataValidationFilter : IActionFilter, IOrderedFilter
         // 获取失败的验证信息列表
         var errors = modelState
             .Where(s => s.Value != null && s.Value.ValidationState == ModelValidationState.Invalid)
-            .SelectMany(s => s.Value!.Errors.ToList())
-            .Select(e => e.ErrorMessage)
+            .SelectMany(s => s.Value!.Errors.ToList(), (s, e) => e.ErrorMessage)
             .ToArray();
 
         // 统一返回

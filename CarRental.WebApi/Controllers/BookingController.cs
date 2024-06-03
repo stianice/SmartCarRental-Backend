@@ -94,7 +94,7 @@ namespace CarRental.WebApi.Controllers
         [HttpDelete("users/{user_email}/bookings/{booking_reference}")]
         public AppResult Delete(string user_email, string booking_reference)
         {
-            _bokingService.removeBookingByUserAndRef(user_email, booking_reference);
+            _bokingService.RemoveBookingByUserAndRef(user_email, booking_reference);
             return AppResult.Status200OKWithMessage("成功移除该订单");
         }
 

@@ -24,9 +24,9 @@ public class AppResultActionFilter : Attribute, IAsyncActionFilter, IOrderedFilt
         ActionExecutionDelegate next
     )
     {
-        Console.WriteLine("异常处理 开始");
+        Console.WriteLine("AppResultActionFilter 异常处理 开始");
         var actionContext = await next();
-        Console.WriteLine("异常处理 结束");
+        Console.WriteLine("AppResultActionFilter 异常处理 结束");
 
         // 如果已经设置了结果，则直接返回
         if (context.Result != null || actionContext.Result != null)

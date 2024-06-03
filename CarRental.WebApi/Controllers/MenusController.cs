@@ -81,7 +81,7 @@ namespace CarRental.WebApi.Controllers
         /// <param name="menuId"></param>
         /// <param name="updateReq"></param>
         /// <returns></returns>
-        [HttpPut]
+        [HttpPut("{menuId}")]
         public AppResult UpdateMenu(long menuId, UpdateMenusReq updateReq)
         {
             updateReq.MenuId = menuId;

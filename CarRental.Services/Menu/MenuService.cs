@@ -81,14 +81,29 @@ namespace CarRental.Services
 
         public void UpdateMenu(UpdateMenusReq updateReq)
         {
+            //获取当前节点
             var menu = _db.Menus.Find(updateReq.MenuId);
+
+            //获取新父节点
+            var newparentMenu = _db
+                .Menus.Include(x => x.Children)
+                .FirstOrDefault(x => x.MenuId == updateReq.ParentId);
+
+            newparentMenu?.Children.Add(menu);
+
+            //获取旧父节点
+            var oldparentMenu = _db
+                .Menus.Include(x => x.Children)
+                .FirstOrDefault(x => x.MenuId == menu.ParentId);
+
+            oldparentMenu?.Children.Remove(menu);
+
             if (menu != null)
             {
                 if (updateReq.Available.HasValue)
                 {
                     menu.Available = updateReq.Available.Value;
                 }
-                menu.ParentId = updateReq.ParentId;
                 menu.Path = updateReq.Path;
                 menu.Title = updateReq.Title;
                 menu.IconPath = updateReq.IconPath;

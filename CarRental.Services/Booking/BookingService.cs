@@ -144,7 +144,7 @@ public class BookingService
         return _db.Bookings.ExecuteUpdate(x => x.SetProperty(x => x.IsDeleted, true));
     }
 
-    public long removeBookingByUserAndRef(string user_email, string booking_reference)
+    public long RemoveBookingByUserAndRef(string user_email, string booking_reference)
     {
         try
         {
